@@ -1,19 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Navigator from './components/homeStack';
+import HomeStack from './components/homeStack'; // Adjust the import path as per your project structure
 
 export default function App() {
   return (
-    <Navigator/>
+    <NavigationContainer>
+      <HomeStack />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

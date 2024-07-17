@@ -1,87 +1,177 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import styles from './style';
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { PieChart, BarChart } from 'react-native-chart-kit';
+import { useNavigation } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import HomeStack from '../../components/homeStack'; // Import your HomeStack navigator
+import styles from './style'; // Import your updated styles
 
-// Function to simulate fetching heart rate data
-const getHeartRate = () => {
-  // Simulate a delay in fetching data
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(72); // Example heart rate value
-    }, 1000);
-  });
-};
+const Drawer = createDrawerNavigator();
 
-// Function to fetch session username from API
-const fetchUserName = async () => {
-  try {
-    const response = await fetch('http://192.168.0.234/SENA/api/login.php', {
-      method: 'GET', // Use the appropriate method for your API
-      headers: {
-        'Content-Type': 'application/json',
+// Import your custom icons from assets
+import ThermometerIcon from '../../assets/thermometer.png';
+import AnalyticsIcon from '../../assets/ph.png';
+
+const HomeScreen = () => {
+  const navigation = useNavigation();
+
+  const pieChartData = [
+    { name: 'Temperature', population: 28, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'pH', population: 7.2, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+  ];
+
+  const barChartData = {
+    labels: ['Temperature', 'pH'],
+    datasets: [
+      {
+        data: [32, 6.5], // Updated dummy data without DO
       },
-      credentials: 'include', // Include credentials if needed
-    });
+    ],
+  };
 
-    const data = await response.json();
-    return data.u_name || 'Guest'; // Default to 'Guest' if no username is found
-  } catch (error) {
-    console.error('Error fetching username:', error);
-    return 'Guest'; // Default to 'Guest' in case of an error
-  }
+  return (
+    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
+      <Drawer.Screen name="Dashboard">
+        {() => <DashboardScreen pieChartData={pieChartData} barChartData={barChartData} />}
+      </Drawer.Screen>
+      <Drawer.Screen name="Temperature" component={TempScreen} />
+      <Drawer.Screen name="pH Sensors" component={PHSensorsScreen} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Logout">
+        {() => {
+          navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
+          return null; // Return null to avoid rendering this component
+        }}
+      </Drawer.Screen>
+    </Drawer.Navigator>
+  );
 };
 
-export default class Home extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      heartRate: null,
-      userName: 'Guest', // Default value
-    };
-  }
+const DashboardScreen = ({ pieChartData, barChartData }) => {
+  const navigation = useNavigation();
 
-  componentDidMount() {
-    this.fetchHeartRate();
-    this.fetchUserName();
-  }
+  return (
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.menuButton} onPress={() => navigation.toggleDrawer()}>
+          {/* Optional menu button if needed */}
+          {/* <Image source={require('../../assets/menu.png')} style={{ width: 32, height: 32 }} /> */}
+        </TouchableOpacity>
 
-  fetchHeartRate = async () => {
-    const heartRate = await getHeartRate();
-    this.setState({ heartRate });
-  };
+        {/* Additional sensor cards */}
+        <SensorCard
+          sensorName="Temperature"
+          sensorData="28"
+          icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
+        />
+        <SensorCard
+          sensorName="pH"
+          sensorData="7.2"
+          icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
+        />
 
-  fetchUserName = async () => {
-    const userName = await fetchUserName();
-    this.setState({ userName });
-  };
-
-  render() {
-    const { heartRate, userName } = this.state;
-    return (
-      <View style={styles.view}>
-        <Text style={styles.txt}>WELCOME, {userName}!</Text>
-        <View style={dashboardStyles.container}>
-          <Text style={dashboardStyles.label}>Heart Rate:</Text>
-          <Text style={dashboardStyles.value}>
-            {heartRate !== null ? `${heartRate} BPM` : 'Loading...'}
-          </Text>
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
+          <PieChart
+            data={pieChartData}
+            width={Dimensions.get('window').width - 32}
+            height={220}
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 2,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="15"
+            absolute
+          />
         </View>
-      </View>
-    );
-  }
-}
 
-const dashboardStyles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  value: {
-    fontSize: 24,
-    color: 'red',
-  },
-});
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Sensors Data (Bar Graph)</Text>
+          <BarChart
+            style={{ marginVertical: 8, borderRadius: 16 }}
+            data={barChartData}
+            width={Dimensions.get('window').width - 32}
+            height={220}
+            yAxisLabel=""
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 2,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            verticalLabelRotation={30}
+          />
+        </View>
+
+      </View>
+    </ScrollView>
+  );
+};
+
+const SensorCard = ({ sensorName, sensorData, icon }) => (
+  <View style={[styles.sensorCard, styles.cardContainer]}>
+    <View style={styles.sensorText}>
+      <Text style={styles.sensorName}>{sensorName}</Text>
+      <Text style={styles.sensorData}>{sensorData}</Text>
+    </View>
+    <View style={styles.sensorIcon}>{icon}</View>
+  </View>
+);
+
+const CustomSidebar = () => {
+  const navigation = useNavigation();
+
+  const navigateToScreen = (screenName) => {
+    navigation.navigate(screenName);
+  };
+
+  return (
+    <View style={styles.sidebar}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Dashboard')}>
+        <Text style={styles.sidebarText}>Dashboard</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Temperature')}>
+        <Text style={styles.sidebarText}>Temperature</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('pH Sensors')}>
+        <Text style={styles.sidebarText}>pH Sensors</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Profile')}>
+        <Text style={styles.sidebarText}>Profile</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Logout')}>
+        <Text style={styles.sidebarText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const PHSensorsScreen = () => (
+  <View style={styles.screen}>
+    <Text>pH Sensors Screen</Text>
+  </View>
+);
+
+const TempScreen = () => (
+  <View style={styles.screen}>
+    <Text>Temperature Screen</Text>
+  </View>
+);
+
+const ProfileScreen = () => (
+  <View style={styles.screen}>
+    <Text>Profile Screen</Text>
+  </View>
+);
+
+export default HomeScreen;

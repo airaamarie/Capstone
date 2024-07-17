@@ -28,7 +28,7 @@ export default class SignIn extends Component {
       });
       alert("Required Field Is Missing!!!");
     } else {
-      var APIURL = "http://192.168.0.234/SENA/api/login.php";
+      var APIURL = "http://192.168.1.5/CAPSTONE/api/login.php";
 
       var headers = {
         'Accept': 'application/json',
@@ -40,20 +40,30 @@ export default class SignIn extends Component {
         u_pass: this.state.u_pass
       };
 
+      console.log("Sending request to:", APIURL);
+      console.log("Request data:", Data);
+
       fetch(APIURL, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(Data)
       })
-      .then((Response) => Response.json())
-      .then((Response) => {
-        alert(Response.Message);
-        if (Response.Message === "Logging in!!") {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((responseJson) => {
+        console.log("Parsed response:", responseJson);
+        alert(responseJson.Message);
+        if (responseJson.Message === "Logging in!!") {
           this.props.navigation.navigate("Home");
         }
       })
       .catch((error) => {
-        console.error("ERROR FOUND: " + error);
+        console.error("ERROR FOUND:", error);
+        alert("Error Occurred: " + error.message);
       });
     }
   }
