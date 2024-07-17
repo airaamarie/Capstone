@@ -29,7 +29,7 @@ export default class SignUp extends Component {
     } else if (upass !== confirmPw) {
       alert("Password does not match!!!");
     } else {
-      var InsertAPIURL = "http://localhost/proj/api/signup.php";
+      var InsertAPIURL = "http://192.168.0.189/CAPSTONE/api/signup.php"; // Update URL if using an Android emulator
 
       var headers = {
         'Accept': 'application/json',
@@ -50,10 +50,10 @@ export default class SignUp extends Component {
       .then(response => response.json())
       .then(response => {
         alert(response.Message);
-        this.props.navigation.navigate("SignInScreen");
+        this.props.navigation.navigate("SignIn");
       })
       .catch(error => {
-        alert("Error Occurred" + error);
+        alert("Error Occurred: " + error);
       });
     }
   }
