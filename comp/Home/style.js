@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -82,6 +82,37 @@ const styles = StyleSheet.create({
   sidebarSeparator: {
     height: 1,
     backgroundColor: '#ccc',
+    marginVertical: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    position: 'absolute',
+    top: height * 0.2, // 20% from the top of the screen
+    left: width * 0.1, // 10% from the left of the screen
+    width: width * 0.2, // 80% of the screen width
+    height: height * 0.6, // 60% of the screen height
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+  },
+  closeButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#87CEEB', // Sky blue color
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  subMenuItem: {
     marginVertical: 10,
   },
 });
