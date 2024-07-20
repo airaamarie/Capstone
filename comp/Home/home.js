@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { useNavigation } from '@react-navigation/native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import styles from './style'; // Import your updated styles
 import Guideline from '../guide/guideline';
-import Reports from '../Reports/reports'
+import Reports from '../Reports/reports';
 import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
 
@@ -32,12 +32,12 @@ const DashboardScreen = () => {
         <SensorCard
           sensorName="Temperature"
           sensorData="28"
-          icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
+          icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />}
         />
         <SensorCard
           sensorName="pH"
           sensorData="7.2"
-          icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
+          icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />}
         />
 
         <View style={styles.chartCard}>
@@ -88,32 +88,13 @@ const ReportsScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('Temperature')}>
+      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('WaterTemperature')}>
         <Text style={styles.sidebarText}>Temperature Sensor</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('pH')}>
+      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('PhLevel')}>
         <Text style={styles.sidebarText}>pH Sensor</Text>
       </TouchableOpacity>
     </View>
-  );
-};
-
-const HomeScreen = () => {
-  return (
-    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
-      <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-      <Drawer.Screen name="Reports" component={Reports} />
-      <Drawer.Screen name="Feeding Time" component={FeedingTimeScreen} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="Guide" component={Guideline} />
-      <Drawer.Screen name="Logout">
-        {() => {
-          const navigation = useNavigation();
-          navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
-          return null; // Return null to avoid rendering this component
-        }}
-      </Drawer.Screen>
-    </Drawer.Navigator>
   );
 };
 
@@ -130,32 +111,30 @@ const SensorCard = ({ sensorName, sensorData, icon }) => (
 const CustomSidebar = () => {
   const navigation = useNavigation();
 
-  const navigateToScreen = (screenName) => {
-    navigation.navigate(screenName);
-  };
-
   return (
     <View style={styles.sidebar}>
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Dashboard')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Dashboard')}>
         <Text style={styles.sidebarText}>Dashboard</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Reports')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Reports')}>
         <Text style={styles.sidebarText}>Reports</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Feeding Time')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('FeedingTime')}>
         <Text style={styles.sidebarText}>Feeding Time</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Profile')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Profile')}>
         <Text style={styles.sidebarText}>Profile</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Guide')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Guideline')}>
         <Text style={styles.sidebarText}>Guide</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Logout')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => {
+        navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
+      }}>
         <Text style={styles.sidebarText}>Logout</Text>
       </TouchableOpacity>
     </View>
@@ -180,4 +159,21 @@ const GuideScreen = () => (
   </View>
 );
 
-export default HomeScreen;
+export default function HomeScreen() {
+  return (
+    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
+      <Drawer.Screen name="Dashboard" component={DashboardScreen} />
+      <Drawer.Screen name="Reports" component={ReportsScreen} />
+      <Drawer.Screen name="FeedingTime" component={FeedingTimeScreen} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Guide" component={GuideScreen} />
+      <Drawer.Screen name="SignIn">
+        {() => {
+          const navigation = useNavigation();
+          navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
+          return null; // Return null to avoid rendering this component
+        }}
+      </Drawer.Screen>
+    </Drawer.Navigator>
+  );
+}

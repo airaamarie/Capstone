@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sidebar: {
-    backgroundColor: '#3333fb', // Sky blue background for the sidebar
+    backgroundColor: 'rgb(5, 145, 66)', // Sky blue background for the sidebar
     flex: 1,
   },
   sidebarItem: {
