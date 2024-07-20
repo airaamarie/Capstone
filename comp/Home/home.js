@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Dimensions, Modal } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import styles from './style'; // Import your updated styles
-
-// Import your custom icons from assets
+import Guideline from '../guide/guideline';
+import Reports from '../Reports/reports'
 import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
 
 const Drawer = createDrawerNavigator();
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
+const DashboardScreen = () => {
   const pieChartData = [
     { name: 'Temperature', population: 28, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
     { name: 'pH', population: 7.2, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
@@ -29,107 +26,89 @@ const HomeScreen = () => {
     ],
   };
 
-  const toggleModal = () => {
-    setIsModalVisible(!isModalVisible);
-  };
-
-  const navigateToScreen = (screenName) => {
-    navigation.navigate(screenName);
-    setIsModalVisible(false); // Close the modal after navigation
-  };
-
-  const DashboardScreen = () => (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.menuButton} onPress={() => navigation.toggleDrawer()}>
-        {/* Optional menu button if needed */}
-        {/* <Image source={require('../../assets/menu.png')} style={{ width: 32, height: 32 }} /> */}
-      </TouchableOpacity>
-
-      {/* Additional sensor cards */}
-      <SensorCard
-        sensorName="Temperature"
-        sensorData="28"
-        icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
-      />
-      <SensorCard
-        sensorName="pH"
-        sensorData="7.2"
-        icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
-      />
-
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
-        <PieChart
-          data={pieChartData}
-          width={Dimensions.get('window').width - 32}
-          height={220}
-          chartConfig={{
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: { borderRadius: 16 },
-          }}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="15"
-          absolute
+  return (
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <SensorCard
+          sensorName="Temperature"
+          sensorData="28"
+          icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
         />
-      </View>
-
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Sensors Data (Bar Graph)</Text>
-        <BarChart
-          style={{ marginVertical: 8, borderRadius: 16 }}
-          data={barChartData}
-          width={Dimensions.get('window').width - 32}
-          height={220}
-          yAxisLabel=""
-          chartConfig={{
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: { borderRadius: 16 },
-          }}
-          verticalLabelRotation={30}
+        <SensorCard
+          sensorName="pH"
+          sensorData="7.2"
+          icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />} // Updated icon using Image component and style
         />
+
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
+          <PieChart
+            data={pieChartData}
+            width={Dimensions.get('window').width - 32}
+            height={220}
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 2,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="15"
+            absolute
+          />
+        </View>
+
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Sensors Data (Bar Graph)</Text>
+          <BarChart
+            style={{ marginVertical: 8, borderRadius: 16 }}
+            data={barChartData}
+            width={Dimensions.get('window').width - 32}
+            height={220}
+            yAxisLabel=""
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 2,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: { borderRadius: 16 },
+            }}
+            verticalLabelRotation={30}
+          />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
+};
+
+const ReportsScreen = () => {
+  const navigation = useNavigation();
 
   return (
-    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar toggleModal={toggleModal} />}>
+    <View style={styles.screen}>
+      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('Temperature')}>
+        <Text style={styles.sidebarText}>Temperature Sensor</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('pH')}>
+        <Text style={styles.sidebarText}>pH Sensor</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const HomeScreen = () => {
+  return (
+    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-      <Drawer.Screen name="Reports">
-        {() => (
-          <Modal
-            transparent={true}
-            animationType="slide"
-            visible={isModalVisible}
-            onRequestClose={() => setIsModalVisible(false)}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalContainer}>
-                <TouchableOpacity style={styles.subMenuItem} onPress={() => navigateToScreen('Temperature')}>
-                  <Text style={styles.sidebarText}>Temperature Sensor</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.subMenuItem} onPress={() => navigateToScreen('pH')}>
-                  <Text style={styles.sidebarText}>pH Sensor</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setIsModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        )}
-      </Drawer.Screen>
-      <Drawer.Screen name="Feeding Time" component={PHSensorsScreen} />
+      <Drawer.Screen name="Reports" component={Reports} />
+      <Drawer.Screen name="Feeding Time" component={FeedingTimeScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="Guide" component={GuideScreen} />
+      <Drawer.Screen name="Guide" component={Guideline} />
       <Drawer.Screen name="Logout">
         {() => {
+          const navigation = useNavigation();
           navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
           return null; // Return null to avoid rendering this component
         }}
@@ -148,12 +127,11 @@ const SensorCard = ({ sensorName, sensorData, icon }) => (
   </View>
 );
 
-const CustomSidebar = ({ toggleModal }) => {
+const CustomSidebar = () => {
   const navigation = useNavigation();
 
   const navigateToScreen = (screenName) => {
     navigation.navigate(screenName);
-    toggleModal(); // Close the modal after navigation
   };
 
   return (
@@ -162,7 +140,7 @@ const CustomSidebar = ({ toggleModal }) => {
         <Text style={styles.sidebarText}>Dashboard</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={toggleModal}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Reports')}>
         <Text style={styles.sidebarText}>Reports</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigateToScreen('Feeding Time')}>
@@ -184,7 +162,7 @@ const CustomSidebar = ({ toggleModal }) => {
   );
 };
 
-const PHSensorsScreen = () => (
+const FeedingTimeScreen = () => (
   <View style={styles.screen}>
     <Text>Feeding Time Screen</Text>
   </View>

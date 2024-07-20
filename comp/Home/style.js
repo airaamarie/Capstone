@@ -10,11 +10,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     alignItems: 'center',
+    paddingTop: 20, // Adjust the paddingTop to give space for the menu button
   },
   menuButton: {
     position: 'absolute',
     top: 40,
     left: 20,
+    zIndex: 1, // Ensure the button is on top
   },
   chartCard: {
     backgroundColor: '#f8f9fa',
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: height * 0.2, // 20% from the top of the screen
     left: width * 0.1, // 10% from the left of the screen
-    width: width * 0.2, // 80% of the screen width
+    width: width * 0.2, // 20% of the screen width (corrected)
     height: height * 0.6, // 60% of the screen height
     backgroundColor: '#fff',
     borderRadius: 10,
