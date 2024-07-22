@@ -1,26 +1,36 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const Guideline = () => {
   const navigation = useNavigation();
 
+  const menuItems = [
+    { id: '1', title: 'Parameters', screen: 'Parameters' },
+    { id: '2', title: 'Food', screen: 'Food' },
+    { id: '3', title: 'User Manual', screen: 'UserManual' },
+    { id: '4', title: 'Tips', screen: 'Tips' },
+  ];
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.button} 
+      onPress={() => navigation.navigate(item.screen)}
+    >
+      <Text style={styles.buttonText}>{item.title}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
       <Text style={styles.title}>Guideline</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Parameters')}>
-        <Text style={styles.buttonText}>Parameters</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Food')}>
-        <Text style={styles.buttonText}>Food</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserManual')}>
-        <Text style={styles.buttonText}>User Manual</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Tips')}>
-        <Text style={styles.buttonText}>Tips</Text>
-      </TouchableOpacity>
+      <FlatList
+        data={menuItems}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.buttonContainer}
+      />
     </View>
   );
 };
@@ -28,33 +38,51 @@ const Guideline = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    padding: 20,
+    backgroundColor: '#e0f7fa', 
   },
   logo: {
     width: 100,
     height: 100,
     marginBottom: 16,
-    marginTop: 16,
+    alignSelf: 'center',
+    borderRadius: 10, 
+    borderWidth: 2,
+    borderColor: '#004d40',
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.3,
+    shadowRadius: 4, 
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#004d40',
+    textAlign: 'center',
+    marginBottom: 20,
+    textShadowColor: '#fff', 
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  buttonContainer: {
+    flexGrow: 1,
   },
   button: {
     width: '100%',
     padding: 16,
-    backgroundColor: 'rgb(5, 145, 66)',
+    backgroundColor: '#004d40', 
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 12,
+    elevation: 3, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
   },
 });
