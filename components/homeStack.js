@@ -12,6 +12,7 @@ import PH from '../comp/Reports/pH';
 import Edit from '../comp/feeding/edit';
 import AddFeeding from '../comp/feeding/add';
 
+
 const Stack = createStackNavigator();
 
 const HomeStack = () => {
@@ -33,7 +34,6 @@ const HomeStack = () => {
       <Stack.Screen name="PH" component={PH} />
       <Stack.Screen name="Edit" component={Edit} />
       <Stack.Screen name="AddFeeding" component={AddFeeding} />
-
     </Stack.Navigator>
   );
 };

@@ -9,6 +9,7 @@ import Reports from '../Reports/reports';
 import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
 import Feeding from '../feeding/feeding';
+import Profile from '../profile/profile';
 
 const Drawer = createDrawerNavigator();
 
@@ -142,31 +143,13 @@ const CustomSidebar = () => {
   );
 };
 
-const FeedingTimeScreen = () => (
-  <View style={styles.screen}>
-    <Text>Feeding Time Screen</Text>
-  </View>
-);
-
-const ProfileScreen = () => (
-  <View style={styles.screen}>
-    <Text>Profile Screen</Text>
-  </View>
-);
-
-const GuideScreen = () => (
-  <View style={styles.screen}>
-    <Text>Guide Screen</Text>
-  </View>
-);
-
 export default function HomeScreen() {
   return (
     <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
       <Drawer.Screen name="Reports" component={Reports} />
       <Drawer.Screen name="Feeding" component={Feeding} />
-      <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="GuideLine" component={Guideline} />
       <Drawer.Screen name="SignIn">
         {() => {
