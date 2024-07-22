@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView, Alert } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
@@ -110,38 +110,68 @@ const SensorCard = ({ sensorName, sensorData, icon }) => (
   </View>
 );
 
+const handleLogout = (navigation) => {
+  // Add your logout logic here
+  Alert.alert("Logout", "You have been logged out.");
+  navigation.navigate('SignIn');
+};
+
 const CustomSidebar = () => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.sidebar}>
+      <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Dashboard')}>
+        <Image source={require('../../assets/dashboard.png')} style={styles.dashboardImage} />
         <Text style={styles.sidebarText}>Dashboard</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Reports')}>
+        <Image source={require('../../assets/report.png')} style={styles.reportImage} />
         <Text style={styles.sidebarText}>Reports</Text>
       </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Feeding')}>
+        <Image source={require('../../assets/time.png')} style={styles.feedImage} />
         <Text style={styles.sidebarText}>Feeding Time</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Profile')}>
+        <Image source={require('../../assets/profile-user.png')} style={styles.profileImage} />
         <Text style={styles.sidebarText}>Profile</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('GuideLine')}>
+        <Image source={require('../../assets/user-guide.png')} style={styles.guideImage} />
         <Text style={styles.sidebarText}>Guide</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => {
-        navigation.navigate('SignIn');
-      }}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => handleLogout(navigation)}>
+        <Image source={require('../../assets/logout.png')} style={styles.logoutImage} />
         <Text style={styles.sidebarText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
+const FeedingTimeScreen = () => (
+  <View style={styles.screen}>
+    <Text>Feeding Time Screen</Text>
+  </View>
+);
+
+const ProfileScreen = () => (
+  <View style={styles.screen}>
+    <Text>Profile Screen</Text>
+  </View>
+);
+
+const GuideScreen = () => (
+  <View style={styles.screen}>
+    <Text>Guide Screen</Text>
+  </View>
+);
 
 export default function HomeScreen() {
   return (
