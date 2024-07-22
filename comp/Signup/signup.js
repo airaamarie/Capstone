@@ -29,7 +29,7 @@ export default class SignUp extends Component {
     } else if (upass !== confirmPw) {
       alert("Password does not match!!!");
     } else {
-      var InsertAPIURL = "http://192.168.0.189/CAPSTONE/api/signup.php"; // Update URL if using an Android emulator
+      var InsertAPIURL = "http://192.168.1.114/CAPSTONE/api/signup.php"; // Update URL if using an Android emulator
 
       var headers = {
         'Accept': 'application/json',
