@@ -3,11 +3,12 @@ import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'rea
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
-import styles from './style'; // Import your updated styles
+import styles from './style';
 import Guideline from '../guide/guideline';
 import Reports from '../Reports/reports';
 import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
+import Feeding from '../feeding/feeding';
 
 const Drawer = createDrawerNavigator();
 
@@ -21,7 +22,7 @@ const DashboardScreen = () => {
     labels: ['Temperature', 'pH'],
     datasets: [
       {
-        data: [32, 6.5], // Updated dummy data without DO
+        data: [32, 6.5],
       },
     ],
   };
@@ -120,7 +121,7 @@ const CustomSidebar = () => {
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Reports')}>
         <Text style={styles.sidebarText}>Reports</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('FeedingTime')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Feeding')}>
         <Text style={styles.sidebarText}>Feeding Time</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
@@ -128,12 +129,12 @@ const CustomSidebar = () => {
         <Text style={styles.sidebarText}>Profile</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Guideline')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('GuideLine')}>
         <Text style={styles.sidebarText}>Guide</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => {
-        navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
+        navigation.navigate('SignIn');
       }}>
         <Text style={styles.sidebarText}>Logout</Text>
       </TouchableOpacity>
@@ -163,15 +164,15 @@ export default function HomeScreen() {
   return (
     <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-      <Drawer.Screen name="Reports" component={ReportsScreen} />
-      <Drawer.Screen name="FeedingTime" component={FeedingTimeScreen} />
+      <Drawer.Screen name="Reports" component={Reports} />
+      <Drawer.Screen name="Feeding" component={Feeding} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
-      <Drawer.Screen name="Guide" component={GuideScreen} />
+      <Drawer.Screen name="GuideLine" component={Guideline} />
       <Drawer.Screen name="SignIn">
         {() => {
           const navigation = useNavigation();
-          navigation.navigate('SignIn'); // Navigate to SignIn screen in HomeStack
-          return null; // Return null to avoid rendering this component
+          navigation.navigate('SignIn');
+          return null;
         }}
       </Drawer.Screen>
     </Drawer.Navigator>

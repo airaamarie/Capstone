@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Text, SafeAreaView } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Tips = () => {
+const Tips = ({ navigation }) => {
   const content = [
     "1. Pond Setup: Build a pond that's at least 1/4 acre with a depth of 4-6 feet, ensuring good sunlight and water access.",
     "2. Water Quality: Maintain clean water with filtration systems and regular testing of pH, water temperature, and oxygen levels.",
@@ -17,8 +18,11 @@ const Tips = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>TIPS</Text>
+        <View style={styles.headerWrapper}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Tips for Catfish Culture</Text>
         </View>
         {content.map((item, index) => (
           <View key={index} style={styles.tipContainer}>
@@ -32,30 +36,42 @@ const Tips = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ensures SafeAreaView takes up the full height of the screen
-    backgroundColor: '#fff',
-    paddingTop: 20, // To avoid overlap with the status bar
+    flex: 1,
+    backgroundColor: '#e0f7fa',
+    paddingTop: 20,
   },
   scrollContainer: {
-    flexGrow: 1, // Ensures ScrollView takes up the full space available
+    flexGrow: 1,
     paddingHorizontal: 15,
-    paddingBottom: 20, // Adds space at the bottom for content
+    paddingBottom: 20,
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
+  headerWrapper: {
+    width: '100%',
+    position: 'relative',
+    paddingTop: 30,
+  },
+  backButton: {
+    position: 'absolute',
+    left: 10,
+    top: 20,
+    backgroundColor: '#0277bd',
+    padding: 10,
+    borderRadius: 5,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#004d40',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 60,
   },
   tipContainer: {
     marginVertical: 10,
   },
   text: {
     fontSize: 16,
-    color: '#000',
+    color: '#004d40',
     textAlign: 'left',
   },
 });

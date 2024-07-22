@@ -1,16 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { useNavigation } from '@react-navigation/native';
 
-// Get screen dimensions
 const { width } = Dimensions.get('window');
 
 const PH = () => {
+  const navigation = useNavigation();
+
   const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], // Replace with your dates
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     datasets: [
       {
-        data: [7.0, 7.2, 6.8, 7.1, 7.3, 7.4, 7.5], // Replace with your pH values
+        data: [7.0, 7.2, 6.8, 7.1, 7.3, 7.4, 7.5],
       },
     ],
   };
@@ -32,98 +34,95 @@ const PH = () => {
     </View>
   );
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.content}>
+  const ListHeader = () => (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
+      <View style={styles.card}>
         <Text style={styles.text}>Parameters Content</Text>
-        <View style={styles.box}>
-          <LineChart
-            data={data}
-            width={width * 0.9} // 90% of screen width
-            height={220}
-            chartConfig={{
-              backgroundColor: '#e26a00',
-              backgroundGradientFrom: '#fb8c00',
-              backgroundGradientTo: '#ffa726',
-              decimalPlaces: 2,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Black
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Black
-              style: {
-                borderRadius: 16,
-              },
-              propsForDots: {
-                r: '6',
-                strokeWidth: '2',
-                stroke: '#ffa726',
-              },
-            }}
-            bezier
-            style={styles.chart}
-          />
-        </View>
-        <View style={styles.historyContainer}>
-          <Text style={styles.historyTitle}>History</Text>
-          <FlatList
-            data={historyData}
-            renderItem={renderHistoryItem}
-            keyExtractor={(item) => item.date}
-          />
-        </View>
+        <LineChart
+          data={data}
+          width={width * 0.8} 
+          height={220}
+          chartConfig={{
+            backgroundColor: '#e26a00',
+            backgroundGradientFrom: '#fb8c00',
+            backgroundGradientTo: '#ffa726',
+            decimalPlaces: 2,
+            color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+            propsForDots: {
+              r: '6',
+              strokeWidth: '2',
+              stroke: '#ffa726',
+            },
+          }}
+          bezier
+          style={styles.chart}
+        />
       </View>
-    </ScrollView>
+      <View style={styles.card}>
+        <Text style={styles.historyTitle}>History</Text>
+        <FlatList
+          data={historyData}
+          renderItem={renderHistoryItem}
+          keyExtractor={(item) => item.date}
+        />
+      </View>
+    </View>
+  );
+
+  return (
+    <FlatList
+      ListHeaderComponent={ListHeader}
+      contentContainerStyle={styles.container}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1, // Allow ScrollView to expand based on content
+    flexGrow: 1,
     backgroundColor: '#fff',
     padding: 16,
   },
-  content: {
-    flexGrow: 1,
+  headerContainer: {
+    alignItems: 'flex-start', 
+  },
+  card: {
+    width: '100%',
+    maxWidth: 600,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    marginBottom: 16,
   },
   text: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#000', // Black text
-  },
-  box: {
-    width: '100%',
-    maxWidth: 600, // Limit maximum width
-    backgroundColor: '#f5f5f5',
-    borderRadius: 16,
-    padding: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    marginBottom: 16,
+    color: '#000',
+    textAlign: 'center',
   },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
-    alignSelf: 'center',
-  },
-  historyContainer: {
-    width: '100%',
-    maxWidth: 600, // Limit maximum width
-    backgroundColor: '#f5f5f5',
-    borderRadius: 16,
-    padding: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
   },
   historyTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000', // Black text
+    color: '#000',
     marginBottom: 8,
+    textAlign: 'center',
   },
   historyItem: {
     flexDirection: 'row',
@@ -134,11 +133,24 @@ const styles = StyleSheet.create({
   },
   historyDate: {
     fontSize: 16,
-    color: '#000', // Black text
+    color: '#000',
   },
   historyValue: {
     fontSize: 16,
-    color: '#000', // Black text
+    color: '#000',
+  },
+  backButton: {
+    backgroundColor: '#007bff', 
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    color: '#fff', 
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

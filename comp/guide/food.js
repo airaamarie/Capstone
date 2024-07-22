@@ -1,10 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Food = () => {
+const Food = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.recommendation}>Recommended Food</Text>
+      <View style={styles.headerWrapper}>
+        <View style={styles.hiddenBackButtonContainer}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Icon name="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.recommendation}>Recommended Food</Text>
+      </View>
       <Text style={styles.heading}>Small Fingerlings</Text>
       <Text style={styles.description}>
         Feeds may include fish meal or other animal proteins, typically comprising 45-50% protein.
@@ -31,28 +39,52 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#e0f7fa',
     padding: 20,
-    paddingTop: 20, // Reduced value to move content higher
+  },
+  headerWrapper: {
+    width: '100%',
+    position: 'relative',
+    paddingTop: 30,
+  },
+  hiddenBackButtonContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButton: {
+    backgroundColor: '#0277bd',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
   },
   recommendation: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 0, // You can adjust this if needed to fine-tune position
+    color: '#004d40',
+    textAlign: 'center',
+    marginBottom: 30,
+    marginTop: 30,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#004d40',
     marginBottom: 10,
   },
   description: {
     fontSize: 16,
+    color: '#004d40',
     textAlign: 'center',
     marginVertical: 10,
   },
   additional: {
     fontSize: 16,
+    color: '#004d40',
     textAlign: 'center',
     marginTop: 20,
   },

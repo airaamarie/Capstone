@@ -10,13 +10,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     alignItems: 'center',
-    paddingTop: 20, // Adjust the paddingTop to give space for the menu button
+    paddingTop: 20, 
   },
   menuButton: {
     position: 'absolute',
     top: 40,
     left: 20,
-    zIndex: 1, // Ensure the button is on top
+    zIndex: 1, 
   },
   chartCard: {
     backgroundColor: '#f8f9fa',
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sidebar: {
-    backgroundColor: 'rgb(5, 145, 66)', // Sky blue background for the sidebar
+    backgroundColor: 'rgb(5, 145, 66)', 
     flex: 1,
   },
   sidebarItem: {
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   sidebarText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff', // White text for better visibility
+    color: '#fff', 
   },
   sidebarSeparator: {
     height: 1,
@@ -94,10 +94,10 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     position: 'absolute',
-    top: height * 0.2, // 20% from the top of the screen
-    left: width * 0.1, // 10% from the left of the screen
-    width: width * 0.2, // 20% of the screen width (corrected)
-    height: height * 0.6, // 60% of the screen height
+    top: height * 0.2, 
+    left: width * 0.1, 
+    width: width * 0.2, 
+    height: height * 0.6, 
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#87CEEB', // Sky blue color
+    backgroundColor: '#87CEEB', 
     borderRadius: 5,
   },
   closeButtonText: {
