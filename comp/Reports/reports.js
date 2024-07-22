@@ -9,10 +9,10 @@ const Reports = () => {
     <View style={styles.container}>
       <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
       <Text style={styles.title}>REPORTS</Text>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Temperature')}>
+      <TouchableOpacity style={[styles.button, styles.buttonTop]} onPress={() => navigation.navigate('Temperature')}>
         <Text style={styles.buttonText}>WATER TEMPERATURE</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PH')}>
+      <TouchableOpacity style={[styles.button, styles.buttonBottom]} onPress={() => navigation.navigate('PH')}>
         <Text style={styles.buttonText}>pH LEVEL</Text>
       </TouchableOpacity>
     </View>
@@ -25,13 +25,20 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#e0f7fa',
   },
   logo: {
     width: 100,
     height: 100,
     marginBottom: 16,
-    marginTop: 16,
+    alignSelf: 'center',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#004d40',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   title: {
     fontSize: 24,
@@ -41,10 +48,16 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     padding: 16,
-    backgroundColor: 'rgb(5, 145, 66)',
+    backgroundColor: '#004d40',
     borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8, 
+  },
+  buttonTop: {
+    marginTop: 50, 
+  },
+  buttonBottom: {
+    marginTop: 10, 
   },
   buttonText: {
     color: '#fff',
