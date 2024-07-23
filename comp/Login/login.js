@@ -9,70 +9,53 @@ export default class SignIn extends Component {
     this.state = {
       u_name: '',
       u_pass: '',
-      check_textInputChange: false,
       secureTextEntry: true,
-      u_nameError: false, // State for tracking username field error
-      u_passError: false, // State for tracking password field error
+      u_nameError: false,
+      u_passError: false,
     };
   }
 
   InsertRecord = () => {
-    var userName = this.state.u_name;
-    var userPass = this.state.u_pass;
+    const { u_name, u_pass } = this.state;
 
-    if (userName.length === 0 || userPass.length === 0) {
-      // Update error states to display error messages
+    // Check if required fields are empty
+    if (u_name.length === 0 || u_pass.length === 0) {
       this.setState({
-        u_nameError: userName.length === 0,
-        u_passError: userPass.length === 0,
+        u_nameError: u_name.length === 0,
+        u_passError: u_pass.length === 0,
       });
       alert("Required Field Is Missing!!!");
     } else {
-      var APIURL = "http://192.168.1.6/CAPSTONE/api/login.php";
-
-      var headers = {
+      const APIURL = "http://192.168.1.8/CAPSTONE/api/login.php";
+      const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       };
-
-      var Data = {
-        u_name: this.state.u_name,
-        u_pass: this.state.u_pass
-      };
-
-      console.log("Sending request to:", APIURL);
-      console.log("Request data:", Data);
+      const Data = { u_name, u_pass };
 
       fetch(APIURL, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(Data)
       })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
         return response.json();
       })
-      .then((responseJson) => {
-        console.log("Parsed response:", responseJson);
+      .then(responseJson => {
         alert(responseJson.Message);
         if (responseJson.Message === "Logging in!!") {
           this.props.navigation.navigate("Home");
         }
       })
-      .catch((error) => {
-        console.error("ERROR FOUND:", error);
+      .catch(error => {
         alert("Error Occurred: " + error.message);
       });
     }
   }
 
-  updateSecureTextEntry() {
-    this.setState({
-      ...this.state,
-      secureTextEntry: !this.state.secureTextEntry
-    });
+  updateSecureTextEntry = () => {
+    this.setState({ secureTextEntry: !this.state.secureTextEntry });
   }
 
   render() {
@@ -84,27 +67,25 @@ export default class SignIn extends Component {
           <Text style={styles.label}>Username</Text>
           <TextInput
             placeholder="Enter your Username"
-            placeholderTextColor="#ccc"
+            placeholderTextColor="#7F7F7F"
             style={[styles.input, this.state.u_nameError && styles.errorInput]}
             onChangeText={u_name => this.setState({ u_name, u_nameError: false })}
+            accessibilityLabel="Username Input"
           />
-          {this.state.u_nameError && <Text style={styles.errorMessage}>Please enter your email or phone number</Text>}
+          {this.state.u_nameError && <Text style={styles.errorMessage}>Please enter your username</Text>}
           
           <Text style={styles.label}>Password</Text>
           <View style={[styles.passwordContainer, this.state.u_passError && styles.errorInput]}>
             <TextInput
               placeholder="Enter your password"
-              placeholderTextColor="#ccc"
+              placeholderTextColor="#7F7F7F"
               style={styles.passwordInput}
               secureTextEntry={this.state.secureTextEntry}
               onChangeText={u_pass => this.setState({ u_pass, u_passError: false })}
+              accessibilityLabel="Password Input"
             />
-            <TouchableOpacity onPress={() => this.updateSecureTextEntry()} style={styles.icon}>
-              {this.state.secureTextEntry ? (
-                <Feather name="eye-off" color="grey" size={20} />
-              ) : (
-                <Feather name="eye" color="black" size={20} />
-              )}
+            <TouchableOpacity onPress={this.updateSecureTextEntry} style={styles.icon}>
+              <Feather name={this.state.secureTextEntry ? "eye-off" : "eye"} color={this.state.secureTextEntry ? "#7F7F7F" : "#004d40"} size={20} />
             </TouchableOpacity>
           </View>
           {this.state.u_passError && <Text style={styles.errorMessage}>Please enter your password</Text>}

@@ -16,21 +16,28 @@ $userName = $DecodedData['userName'];
 $userPass = $DecodedData['userPass'];
 $phoneNumber = $DecodedData['phoneNumber'];
 
-$SQL = "SELECT * FROM users WHERE u_name = ?";
+// Check if the username or phone number already exists
+$SQL = "SELECT * FROM users WHERE u_name = ? OR phone_number = ?";
 $stmt = $CN->prepare($SQL);
-$stmt->bind_param('s', $userName);
+$stmt->bind_param('ss', $userName, $phoneNumber);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows != 0) {
-    $Message = "Already Registered";
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    if ($row['u_name'] == $userName) {
+        $Message = "Username '$userName' is already registered.";
+    } else if ($row['phone_number'] == $phoneNumber) {
+        $Message = "Phone number '$phoneNumber' is already registered.";
+    }
 } else {
+    // Insert new user if not already registered
     $IQ = $CN->prepare("INSERT INTO users (u_name, u_pass, phone_number) VALUES (?, ?, ?)");
     $IQ->bind_param('sss', $userName, $userPass, $phoneNumber);
     if ($IQ->execute()) {
-        $Message = "User has been Registered!!!";
+        $Message = "User '$userName' has been successfully registered with phone number '$phoneNumber'.";
     } else {
-        $Message = "Error....";
+        $Message = "Error occurred during registration.";
     }
     $IQ->close();
 }
