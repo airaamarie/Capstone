@@ -15,7 +15,7 @@ const Drawer = createDrawerNavigator();
 
 const DashboardScreen = () => {
   const pieChartData = [
-    { name: 'Temperature', population: 28, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Temp', population: 28, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
     { name: 'pH', population: 7.2, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
   ];
 
@@ -23,7 +23,7 @@ const DashboardScreen = () => {
     labels: ['Temperature', 'pH'],
     datasets: [
       {
-        data: [32, 6.5],
+        data: [28, 7.2],
       },
     ],
   };
@@ -46,8 +46,8 @@ const DashboardScreen = () => {
           <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
           <PieChart
             data={pieChartData}
-            width={Dimensions.get('window').width - 32}
-            height={220}
+            width={Dimensions.get('window').width - 78}  // Adjusted width
+            height={180}  // Adjusted height
             chartConfig={{
               backgroundGradientFrom: '#fff',
               backgroundGradientTo: '#fff',
@@ -67,8 +67,8 @@ const DashboardScreen = () => {
           <BarChart
             style={{ marginVertical: 8, borderRadius: 16 }}
             data={barChartData}
-            width={Dimensions.get('window').width - 32}
-            height={220}
+            width={Dimensions.get('window').width - 48}  // Adjusted width
+            height={180}  // Adjusted height
             yAxisLabel=""
             chartConfig={{
               backgroundGradientFrom: '#fff',
@@ -77,13 +77,14 @@ const DashboardScreen = () => {
               color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               style: { borderRadius: 16 },
             }}
-            verticalLabelRotation={30}
+            verticalLabelRotation={0}
           />
         </View>
       </View>
     </ScrollView>
   );
 };
+
 
 const ReportsScreen = () => {
   const navigation = useNavigation();

@@ -4,13 +4,14 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#B0E0E6',
   },
   container: {
     flex: 1,
     padding: 16,
     alignItems: 'center',
     paddingTop: 20,
+    backgroundColor: '#B0E0E6',
   },
   menuButton: {
     position: 'absolute',
@@ -19,17 +20,28 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   chartCard: {
-    backgroundColor: '#f8f9fa',
-    padding: 20,
+    backgroundColor: '#fff', // Light background for contrast
+    padding: 10, // Adjusted padding
     marginVertical: 10,
     borderRadius: 10,
-    width: width - 32,
+    width: width - 32, // Ensure it fits within screen width
+    borderColor: '#004d40',
+    borderWidth: 1,
+    alignItems: 'center', // Center content inside the card
+    maxHeight: height * 0.35, // Increased max height for better fit
+    overflow: 'hidden', // Hide overflow if content exceeds bounds
   },
   chartTitle: {
-    fontSize: 18,
+    fontSize: 16, // Adjusted font size for better fit
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
     textAlign: 'center',
+    color: '#004d40',
+  },
+  chartContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center', // Center the graph within the card
   },
   screen: {
     flex: 1,
@@ -44,8 +56,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
-    width: '100%',
+    borderColor: '#004d40', // Match the border color for consistency
+    width: width - 32, // Ensure it fits within screen width
   },
   sensorIcon: {
     width: 60,
@@ -59,6 +71,7 @@ const styles = StyleSheet.create({
   sensorName: {
     fontSize: 25,
     fontWeight: 'bold',
+    color: '#004d40',
   },
   sensorData: {
     fontSize: 20,
