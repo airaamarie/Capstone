@@ -28,7 +28,7 @@ export default class SignIn extends Component {
       });n
       alert("Required Field Is Missing!!!");
     } else {
-      var APIURL = "http://192.168.100.21/CAPSTONE/api/login.php";
+      var APIURL = "http://192.168.1.31/CAPSTONE/api/login.php";
 
       var headers = {
         'Accept': 'application/json',
