@@ -28,7 +28,7 @@ export default class SignIn extends Component {
       });n
       alert("Required Field Is Missing!!!");
     } else {
-      var APIURL = "http://192.168.1.31/CAPSTONE/api/login.php";
+      var APIURL = "http://192.168.1.10/CAPSTONE/api/login.php";
 
       var headers = {
         'Accept': 'application/json',
@@ -84,7 +84,7 @@ export default class SignIn extends Component {
           <Text style={styles.label}>Username</Text>
           <TextInput
             placeholder="Enter your Username"
-            placeholderTextColor="#ccc"
+            placeholderTextColor="#000000"
             style={[styles.input, this.state.u_nameError && styles.errorInput]}
             onChangeText={u_name => this.setState({ u_name, u_nameError: false })}
           />
@@ -94,7 +94,7 @@ export default class SignIn extends Component {
           <View style={[styles.passwordContainer, this.state.u_passError && styles.errorInput]}>
             <TextInput
               placeholder="Enter your password"
-              placeholderTextColor="#ccc"
+              placeholderTextColor="#000000"
               style={styles.passwordInput}
               secureTextEntry={this.state.secureTextEntry}
               onChangeText={u_pass => this.setState({ u_pass, u_passError: false })}

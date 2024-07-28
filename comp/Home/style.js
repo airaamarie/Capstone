@@ -137,6 +137,11 @@ const styles = StyleSheet.create({
     height: 30,
     marginRight: 15,
   },
+  sensorImage: {
+    width: 30,
+    height: 30,
+    marginRight: 15,
+  },
   sidebarText: {
     fontSize: 20,
     fontWeight: 'bold',

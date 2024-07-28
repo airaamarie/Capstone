@@ -10,6 +10,7 @@ import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
 import Feeding from '../feeding/feeding';
 import Profile from '../profile/profile';
+import Sensor from '../sensor/sensor';
 
 const Drawer = createDrawerNavigator();
 
@@ -148,6 +149,11 @@ const CustomSidebar = () => {
         <Text style={styles.sidebarText}>Guide</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Sensor Registration')}>
+        <Image source={require('../../assets/add.png')} style={styles.sensorImage} />
+        <Text style={styles.sidebarText}>Add Sensor</Text>
+      </TouchableOpacity>
+      <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => handleLogout(navigation)}>
         <Image source={require('../../assets/logout.png')} style={styles.logoutImage} />
         <Text style={styles.sidebarText}>Logout</Text>
@@ -182,6 +188,7 @@ export default function HomeScreen() {
       <Drawer.Screen name="Feeding" component={Feeding} />
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="GuideLine" component={Guideline} />
+      <Drawer.Screen name="Sensor Registration" component={Sensor} />
       <Drawer.Screen name="SignIn">
         {() => {
           const navigation = useNavigation();
