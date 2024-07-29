@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import CustomPopup from './CustomPopup';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const { width } = Dimensions.get('window');
 
-const SensorRegistration = ({ navigation }) => {
-  const [sensorUid, setSensorUid] = useState('');
-  const [sensorType, setSensorType] = useState('');
+const ServoRegistration = ({ navigation }) => {
+  const [servoUid, setServoUid] = useState('');
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  const registerSensor = () => {
-    if (sensorUid.length === 0 || sensorType.length === 0) {
-      setMessage('Please fill all fields');
+  const registerServo = () => {
+    if (servoUid.length === 0) {
+      setMessage('Please fill the servo UID field');
       setIsPopupVisible(true);
       return;
     }
 
-    const data = { sensorUid, sensorType };
+    const data = { servoUid };
 
-    fetch('http://192.168.1.10/CAPSTONE/api/register-sensor.php', {
+    fetch('http://192.168.1.10/CAPSTONE/api/register-servo.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -46,29 +44,18 @@ const SensorRegistration = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Register Sensor</Text>
+        <Text style={styles.headerText}>Register Servo</Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TextInput
           style={styles.input}
-          value={sensorUid}
-          onChangeText={setSensorUid}
-          placeholder="Sensor UID"
+          value={servoUid}
+          onChangeText={setServoUid}
+          placeholder="Servo UID"
         />
-        <Text style={styles.label}>Sensor Type</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={sensorType}
-            style={styles.picker}
-            onValueChange={(itemValue) => setSensorType(itemValue)}
-          >
-            <Picker.Item label="pH" value="pH" />
-            <Picker.Item label="Temperature" value="Temperature" />
-          </Picker>
-        </View>
       </ScrollView>
-      <TouchableOpacity style={styles.saveButton} onPress={registerSensor}>
-        <Text style={styles.saveButtonText}>Register Sensor</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={registerServo}>
+        <Text style={styles.saveButtonText}>Register Servo</Text>
       </TouchableOpacity>
       <CustomPopup
         isVisible={isPopupVisible}
@@ -103,6 +90,10 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  scrollView: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   input: {
     height: 40,
     borderColor: '#b0bec5',
@@ -111,22 +102,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     backgroundColor: '#fff',
-  },
-  label: {
-    fontSize: 18,
-    color: '#004d40',
-    marginVertical: 10,
-  },
-  pickerContainer: {
-    borderColor: '#b0bec5',
-    borderWidth: 1,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-    marginBottom: 20,
-  },
-  picker: {
-    height: 40,
-    width: '100%',
   },
   saveButton: {
     backgroundColor: '#0277bd',
@@ -144,4 +119,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SensorRegistration;
+export default ServoRegistration;
