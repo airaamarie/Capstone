@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const initialFeedingData = [
-  { id: '1', date: '2024-05-14', time: '03:45 PM', status: 'Active' },
-  { id: '2', date: '2024-05-15', time: '10:30 PM', status: 'Active' },
-  { id: '3', date: '2024-05-16', time: '09:15 AM', status: 'Inactive' },
-];
-
 const Feeding = () => {
-  const [feedingData, setFeedingData] = useState(initialFeedingData);
+  const [servoTimings, setServoTimings] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
+  const fetchData = () => {
+    fetch('http://192.168.1.12/CAPSTONE/api/fetchServoTimings.php')
+      .then(response => response.json())
+      .then(data => {
+        console.log('API Response:', data);
+        if (data.servoTimings) {
+          setServoTimings(data.servoTimings);
+        } else {
+          console.error('No servo timings found in response');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching servo timings:', error);
+      });
+  };
 
   const handleDelete = (id) => {
     Alert.alert(
@@ -24,19 +45,43 @@ const Feeding = () => {
         },
         {
           text: "OK",
-          onPress: () => setFeedingData(feedingData.filter(item => item.id !== id))
+          onPress: () => {
+            setLoading(true);
+            fetch('http://192.168.1.12/CAPSTONE/api/deleteServoTiming.php', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ timing_id: id }),
+            })
+              .then(response => response.json())
+              .then(data => {
+                setLoading(false);
+                if (data.success) {
+                  Alert.alert('Success', data.message);
+                  setServoTimings(servoTimings.filter(item => item.id !== id));
+                } else {
+                  Alert.alert('Error', data.message);
+                }
+              })
+              .catch(error => {
+                setLoading(false);
+                Alert.alert('Error', 'Failed to delete the entry.');
+                console.error('Error deleting servo timing:', error);
+              });
+          }
         }
       ]
     );
   };
 
   const handleAddNew = () => {
-    navigation.navigate('AddFeeding');
+    navigation.navigate('AddServoTiming');
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={[styles.itemText, styles.dateText]}>{item.date}</Text>
+      <Text style={[styles.itemText, styles.uidText]}>{item.servo_uid}</Text>
       <Text style={[styles.itemText, styles.timeText]}>{item.time}</Text>
       <Text style={[styles.itemText, styles.statusText]}>{item.status}</Text>
       <View style={styles.buttonContainer}>
@@ -59,7 +104,7 @@ const Feeding = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Feeding Time</Text>
+        <Text style={styles.headerText}>Servo Timings</Text>
         <TouchableOpacity 
           onPress={handleAddNew} 
           style={styles.addButton}
@@ -69,15 +114,15 @@ const Feeding = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.tableHeader}>
-        <Text style={[styles.tableHeaderText, styles.dateHeader]}>Date Created</Text>
+        <Text style={[styles.tableHeaderText, styles.uidHeader]}>Servo UID</Text>
         <Text style={[styles.tableHeaderText, styles.timeHeader]}>Time</Text>
         <Text style={[styles.tableHeaderText, styles.statusHeader]}>Status</Text>
         <Text style={[styles.tableHeaderText, styles.actionsHeader]}>Actions</Text>
       </View>
       <FlatList
-        data={feedingData}
+        data={servoTimings}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
       />
     </View>
   );
@@ -128,7 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 8,
   },
-  dateHeader: {
+  uidHeader: {
     flex: 2,
   },
   timeHeader: {
@@ -156,7 +201,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#004d40',
   },
-  dateText: {
+  uidText: {
     flex: 2,
   },
   timeText: {

@@ -19,7 +19,7 @@ const ServoRegistration = ({ navigation }) => {
 
     const data = { servoUid };
 
-    fetch('http://192.168.1.10/CAPSTONE/api/register-servo.php', {
+    fetch('http://192.168.1.116/CAPSTONE/api/register-servo.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

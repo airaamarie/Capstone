@@ -1,20 +1,77 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-const { width } = Dimensions.get('window');
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const Edit = ({ route, navigation }) => {
   const { item } = route.params;
-  const [date, setDate] = useState(item.date);
+  const [servoUid, setServoUid] = useState(item.servo_uid);
   const [time, setTime] = useState(item.time);
   const [status, setStatus] = useState(item.status);
+  const [statusOpen, setStatusOpen] = useState(false);
 
   const handleSave = () => {
-    const updatedItem = { ...item, date, time, status };
-    navigation.navigate('Feeding', { updatedItem });
+    const updatedItem = { ...item, servo_uid: servoUid, time, status };
+
+    fetch('http://192.168.1.12/CAPSTONE/api/updateServoTiming.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedItem),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Alert.alert('Success', 'Servo timing updated successfully');
+          navigation.navigate('Feeding', { updatedItem });
+        } else {
+          Alert.alert('Error', 'Failed to update servo timing');
+        }
+      })
+      .catch(error => {
+        console.error('Error updating servo timing:', error);
+        Alert.alert('Error', 'Failed to update servo timing');
+      });
   };
+
+  // List of form items
+  const formItems = [
+    { id: '1', component: (
+      <TextInput
+        style={styles.input}
+        value={servoUid}
+        onChangeText={setServoUid}
+        placeholder="Servo UID"
+      />
+    )},
+    { id: '2', component: (
+      <TextInput
+        style={styles.input}
+        value={time}
+        onChangeText={setTime}
+        placeholder="Time"
+      />
+    )},
+    { id: '3', component: (
+      <View>
+        <Text style={styles.label}>Status</Text>
+        <DropDownPicker
+          open={statusOpen}
+          value={status}
+          items={[
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' }
+          ]}
+          setOpen={setStatusOpen}
+          setValue={setStatus}
+          placeholder="Select Status"
+          style={styles.dropdown}
+          dropDownStyle={styles.dropdown}
+        />
+      </View>
+    )},
+  ];
 
   return (
     <View style={styles.container}>
@@ -22,32 +79,14 @@ const Edit = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Edit Feeding Time</Text>
+        <Text style={styles.headerText}>Edit Servo Timing</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <TextInput
-          style={styles.input}
-          value={date}
-          onChangeText={setDate}
-          placeholder="Date"
-          editable={false}
-        />
-        <TextInput
-          style={styles.input}
-          value={time}
-          onChangeText={setTime}
-          placeholder="Time"
-        />
-        <Text style={styles.label}>Status</Text>
-        <Picker
-          selectedValue={status}
-          style={styles.picker}
-          onValueChange={(itemValue) => setStatus(itemValue)}
-        >
-          <Picker.Item label="Active" value="Active" />
-          <Picker.Item label="Inactive" value="Inactive" />
-        </Picker>
-      </ScrollView>
+      <FlatList
+        data={formItems}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => item.component}
+        contentContainerStyle={styles.scrollView}
+      />
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
@@ -93,14 +132,16 @@ const styles = StyleSheet.create({
     color: '#004d40',
     marginVertical: 10,
   },
-  picker: {
-    height: 40,
-    width: '100%',
+  dropdown: {
+    backgroundColor: '#fff',
     borderColor: '#b0bec5',
     borderWidth: 1,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    height: 40,
     marginBottom: 20,
+  },
+  scrollView: {
+    flexGrow: 1,
   },
   saveButton: {
     backgroundColor: '#0277bd',

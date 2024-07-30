@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Picker } from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const { width } = Dimensions.get('window');
 
@@ -14,26 +14,74 @@ const getCurrentDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-const AddFeeding = () => {
+const AddServoTiming = () => {
   const [date] = useState(getCurrentDate());
   const [time, setTime] = useState('');
   const [status, setStatus] = useState('Active');
+  const [servoUid, setServoUid] = useState('');
+  const [servoUids, setServoUids] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
   const navigation = useNavigation();
 
+  useEffect(() => {
+    fetch('http://192.168.1.12/CAPSTONE/api/fetchServoUids.php')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Fetched Servo UIDs:', data);
+        if (data.servoUids) {
+          setServoUids(data.servoUids.map(uid => ({ label: uid, value: uid })));
+        } else {
+          console.error('No servo UIDs found in response');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching servo UIDs:', error);
+      });
+  }, []);
+
   const handleSave = () => {
-    const newEntry = { id: Date.now().toString(), date, time, status };
-    navigation.navigate('Feeding', { newEntry });
+    console.log('Servo UID:', servoUid);
+
+    if (!servoUid) {
+      console.error('Please select a Servo UID.');
+      return;
+    }
+
+    const newEntry = { servoUid, time, date, status };
+
+    fetch('http://192.168.1.12/CAPSTONE/api/addServoTiming.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newEntry),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('API Response:', data);
+      if (data.Message) {
+        console.log(data.Message);
+        navigation.navigate('Feeding', { newEntry });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
       <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Add Feeding Time</Text>
+        <Text style={styles.headerText}>Add Servo Timing</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <View style={styles.formContainer}>
         <TextInput
           style={styles.input}
           value={date}
@@ -43,22 +91,39 @@ const AddFeeding = () => {
           style={styles.input}
           value={time}
           onChangeText={setTime}
-          placeholder="Time"
+          placeholder="Time (HH:MM)"
+        />
+        <Text style={styles.label}>Servo UID</Text>
+        <DropDownPicker
+          open={open}
+          value={servoUid}
+          items={servoUids}
+          setOpen={setOpen}
+          setValue={setServoUid}
+          setItems={setServoUids}
+          placeholder="Select a Servo UID"
+          style={styles.dropdown}
+          dropDownStyle={styles.dropdown}
         />
         <Text style={styles.label}>Status</Text>
-        <Picker
-          selectedValue={status}
-          style={styles.picker}
-          onValueChange={(itemValue) => setStatus(itemValue)}
-        >
-          <Picker.Item label="Active" value="Active" />
-          <Picker.Item label="Inactive" value="Inactive" />
-        </Picker>
-      </ScrollView>
+        <DropDownPicker
+          open={statusOpen}
+          value={status}
+          items={[
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' }
+          ]}
+          setOpen={setStatusOpen}
+          setValue={setStatus}
+          placeholder="Select Status"
+          style={styles.dropdown}
+          dropDownStyle={styles.dropdown}
+        />
+      </View>
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -86,6 +151,9 @@ const styles = StyleSheet.create({
     flex: 1, 
     textAlign: 'center',
   },
+  formContainer: {
+    flex: 1,
+  },
   input: {
     height: 40,
     borderColor: '#b0bec5',
@@ -100,14 +168,13 @@ const styles = StyleSheet.create({
     color: '#004d40', 
     marginVertical: 10, 
   },
-  picker: {
-    height: 40, 
-    width: '100%',
-    borderColor: '#b0bec5', 
+  dropdown: {
+    backgroundColor: '#fff',
+    borderColor: '#b0bec5',
     borderWidth: 1,
+    marginBottom: 20,
     borderRadius: 5,
-    backgroundColor: '#fff', 
-    marginBottom: 20, 
+    height: 40,
   },
   saveButton: {
     backgroundColor: '#0277bd', 
@@ -125,4 +192,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddFeeding;
+export default AddServoTiming;
