@@ -19,7 +19,7 @@ const Feeding = () => {
   );
 
   const fetchData = () => {
-    fetch('http://192.168.1.12/CAPSTONE/api/fetchServoTimings.php')
+    fetch('http://192.168.68.112/CAPSTONE/api/fetchServoTimings.php')
       .then(response => response.json())
       .then(data => {
         console.log('API Response:', data);
@@ -47,7 +47,7 @@ const Feeding = () => {
           text: "OK",
           onPress: () => {
             setLoading(true);
-            fetch('http://192.168.1.12/CAPSTONE/api/deleteServoTiming.php', {
+            fetch('http://192.168.68.112/CAPSTONE/api/deleteServoTiming.php', {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',

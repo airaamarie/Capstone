@@ -13,6 +13,7 @@ import Edit from '../comp/feeding/edit';
 import AddServoTiming from '../comp/feeding/add';
 import SensorRegistration from '../comp/sensor/sensor'
 import ServoRegistration from '../comp/servo/servo';
+import FishTankRegistration from '../comp/tank/fishtank';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +22,7 @@ const HomeStack = () => {
     <Stack.Navigator
       initialRouteName="SignIn"
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}
     >
       <Stack.Screen name="SignIn" component={SignIn} />
@@ -37,6 +38,7 @@ const HomeStack = () => {
       <Stack.Screen name="AddServoTiming" component={AddServoTiming} />
       <Stack.Screen name="SensorRegistration" component={SensorRegistration} />
       <Stack.Screen name="ServoRegistration" component={ServoRegistration} />
+      <Stack.Screen name="FishTankRegistration" component={FishTankRegistration} />
     </Stack.Navigator>
   );
 };

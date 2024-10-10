@@ -12,28 +12,26 @@ error_reporting(E_ALL);
 $EncodedData = file_get_contents('php://input');
 $DecodedData = json_decode($EncodedData, true);
 
-$sensorUid = $DecodedData['sensorUid'];
-$sensorType = $DecodedData['sensorType'];
-$tankId = $DecodedData['tankId']; // Get tank ID from request
+$tankName = $DecodedData['tank_name'];
 
 try {
-    // Check if the sensor UID already exists
-    $SQL = "SELECT * FROM sensors WHERE sensor_uid = ?";
+    // Check if the tank name already exists
+    $SQL = "SELECT * FROM tank WHERE tank_name = ?";
     $stmt = $CN->prepare($SQL);
-    $stmt->bind_param('s', $sensorUid);
+    $stmt->bind_param('s', $tankName);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $Message = "Sensor UID '$sensorUid' is already registered.";
+        $Message = "Tank name '$tankName' is already registered.";
     } else {
-        // Insert new sensor if not already registered
-        $IQ = $CN->prepare("INSERT INTO sensors (sensor_uid, sensor_type, tank_id) VALUES (?, ?, ?)"); // Include tank_id
-        $IQ->bind_param('ssi', $sensorUid, $sensorType, $tankId); // Adjust bind_param for tank_id
+        // Insert new tank if not already registered
+        $IQ = $CN->prepare("INSERT INTO tank (tank_name) VALUES (?)");
+        $IQ->bind_param('s', $tankName);
         if ($IQ->execute()) {
-            $Message = "Sensor UID '$sensorUid' has been successfully registered as '$sensorType'.";
+            $Message = "Tank name '$tankName' has been successfully registered.";
         } else {
-            $Message = "Error occurred during sensor registration.";
+            $Message = "Error occurred during tank registration.";
         }
         $IQ->close();
     }

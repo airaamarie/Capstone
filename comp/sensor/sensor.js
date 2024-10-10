@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CustomPopup from './CustomPopup';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -9,25 +9,39 @@ const { width } = Dimensions.get('window');
 const SensorRegistration = ({ navigation }) => {
   const [sensorUid, setSensorUid] = useState('');
   const [sensorType, setSensorType] = useState('');
+  const [tankId, setTankId] = useState(''); // State to hold selected tank ID
+  const [tanks, setTanks] = useState([]);
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
+  useEffect(() => {
+    // Fetch available tanks from the API
+    fetch('http://192.168.68.112/CAPSTONE/api/get-tanks.php')
+      .then(response => response.json())
+      .then(data => {
+        setTanks(data); // Assuming data is an array of available tanks
+      })
+      .catch(error => {
+        Alert.alert('Error', 'Unable to fetch tanks: ' + error);
+      });
+  }, []);
+
   const registerSensor = () => {
-    if (sensorUid.length === 0 || sensorType.length === 0) {
+    if (sensorUid.length === 0 || sensorType.length === 0 || tankId.length === 0) {
       setMessage('Please fill all fields');
       setIsPopupVisible(true);
       return;
     }
 
-    const data = { sensorUid, sensorType };
+    const data = { sensorUid, sensorType, tankId }; // Include tankId in the data
 
-    fetch('http://192.168.1.116/CAPSTONE/api/register-sensor.php', {
+    fetch('http://192.168.68.112/CAPSTONE/api/register-sensor.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
       .then(response => response.json())
       .then(response => {
@@ -55,6 +69,7 @@ const SensorRegistration = ({ navigation }) => {
           onChangeText={setSensorUid}
           placeholder="Sensor UID"
         />
+
         <Text style={styles.label}>Sensor Type</Text>
         <View style={styles.pickerContainer}>
           <Picker
@@ -66,10 +81,26 @@ const SensorRegistration = ({ navigation }) => {
             <Picker.Item label="Temperature" value="Temperature" />
           </Picker>
         </View>
+
+        <Text style={styles.label}>Select Tank</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={tankId} // Change to tankId
+            style={styles.picker}
+            onValueChange={(itemValue) => setTankId(itemValue)} // Update tankId
+          >
+            <Picker.Item label="Select a tank" value="" />
+            {tanks.map((tank) => (
+              <Picker.Item key={tank.tank_id} label={tank.tank_name} value={tank.tank_id} /> // Use tank_id as value
+            ))}
+          </Picker>
+        </View>
       </ScrollView>
+
       <TouchableOpacity style={styles.saveButton} onPress={registerSensor}>
         <Text style={styles.saveButtonText}>Register Sensor</Text>
       </TouchableOpacity>
+
       <CustomPopup
         isVisible={isPopupVisible}
         message={message}

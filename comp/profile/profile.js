@@ -72,14 +72,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start', // Adjusted to start content from the top
+    justifyContent: 'flex-start', 
     padding: 20,
     backgroundColor: '#e0f7fa',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 0, // No bottom margin
-    marginTop: 20, // Adjusted top margin
+    marginBottom: 0, 
+    marginTop: 20, 
   },
   profilePicContainer: {
     width: 120,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    marginBottom: 10, // Reduced margin bottom
+    marginBottom: 10, 
   },
   profilePic: {
     width: '100%',
@@ -110,11 +110,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#004d40',
-    marginBottom: 10, // Reduced margin bottom
+    marginBottom: 10, 
   },
   form: {
     width: '100%',
-    marginBottom: 20, // Reduced margin bottom
+    marginBottom: 20, 
   },
   label: {
     fontSize: 16,

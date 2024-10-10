@@ -13,7 +13,7 @@ const Edit = ({ route, navigation }) => {
   const handleSave = () => {
     const updatedItem = { ...item, servo_uid: servoUid, time, status };
 
-    fetch('http://192.168.1.12/CAPSTONE/api/updateServoTiming.php', {
+    fetch('http://192.168.68.112/CAPSTONE/api/updateServoTiming.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
