@@ -6,9 +6,10 @@ const Registration = () => {
   const navigation = useNavigation();
 
   const menuItems = [
-    { id: '1', title: 'Sensor Parameters', screen: 'SensorRegistration' },
-    { id: '2', title: 'Servo for Feeder', screen: 'ServoRegistration' },
-    { id: '3', title: 'Fish Tank', screen: 'FishTankRegistration' }, // New Fish Tank button
+    { id: '1', title: 'Add Tank', screen: 'TankRegistration' }, // New Register Tank button
+    { id: '2', title: 'Sensor Parameters', screen: 'SensorRegistration' },
+    { id: '3', title: 'Automation Devices', screen: 'ServoRegistration' },
+    { id: '4', title: 'Fish Tank', screen: 'FishTankRegistration' },
   ];
 
   const renderItem = ({ item }) => (

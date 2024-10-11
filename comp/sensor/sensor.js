@@ -1,41 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TextInput, StyleSheet, FlatList, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import CustomPopup from './CustomPopup';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const { width } = Dimensions.get('window');
 
 const SensorRegistration = ({ navigation }) => {
   const [sensorUid, setSensorUid] = useState('');
   const [sensorType, setSensorType] = useState('');
-  const [tankId, setTankId] = useState(''); // State to hold selected tank ID
-  const [tanks, setTanks] = useState([]);
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-
-  useEffect(() => {
-    // Fetch available tanks from the API
-    fetch('http://192.168.68.112/CAPSTONE/api/get-tanks.php')
-      .then(response => response.json())
-      .then(data => {
-        setTanks(data); // Assuming data is an array of available tanks
-      })
-      .catch(error => {
-        Alert.alert('Error', 'Unable to fetch tanks: ' + error);
-      });
-  }, []);
+  const [open, setOpen] = useState(false);
+  const [sensorTypes, setSensorTypes] = useState([
+    { label: 'pH', value: 'pH' },
+    { label: 'Temperature', value: 'Temperature' },
+    { label: 'Ammonia', value: 'Ammonia' }
+  ]);
 
   const registerSensor = () => {
-    if (sensorUid.length === 0 || sensorType.length === 0 || tankId.length === 0) {
+    if (sensorUid.length === 0 || sensorType.length === 0) {
       setMessage('Please fill all fields');
       setIsPopupVisible(true);
       return;
     }
 
-    const data = { sensorUid, sensorType, tankId }; // Include tankId in the data
+    const data = { sensorUid, sensorType };
 
-    fetch('http://192.168.68.112/CAPSTONE/api/register-sensor.php', {
+    fetch('http://192.168.68.108/CAPSTONE/api/register-sensor.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -62,40 +54,41 @@ const SensorRegistration = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Register Sensor</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <TextInput
-          style={styles.input}
-          value={sensorUid}
-          onChangeText={setSensorUid}
-          placeholder="Sensor UID"
-        />
-
-        <Text style={styles.label}>Sensor Type</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={sensorType}
-            style={styles.picker}
-            onValueChange={(itemValue) => setSensorType(itemValue)}
-          >
-            <Picker.Item label="pH" value="pH" />
-            <Picker.Item label="Temperature" value="Temperature" />
-          </Picker>
-        </View>
-
-        <Text style={styles.label}>Select Tank</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={tankId} // Change to tankId
-            style={styles.picker}
-            onValueChange={(itemValue) => setTankId(itemValue)} // Update tankId
-          >
-            <Picker.Item label="Select a tank" value="" />
-            {tanks.map((tank) => (
-              <Picker.Item key={tank.tank_id} label={tank.tank_name} value={tank.tank_id} /> // Use tank_id as value
-            ))}
-          </Picker>
-        </View>
-      </ScrollView>
+      <FlatList
+        data={[{ key: 'sensorUid' }, { key: 'sensorType' }]}
+        renderItem={({ item }) => {
+          if (item.key === 'sensorUid') {
+            return (
+              <TextInput
+                style={styles.input}
+                value={sensorUid}
+                onChangeText={setSensorUid}
+                placeholder="Sensor UID"
+              />
+            );
+          } else if (item.key === 'sensorType') {
+            return (
+              <View>
+                <Text style={styles.label}>Sensor Type</Text>
+                <DropDownPicker
+                  open={open}
+                  value={sensorType}
+                  items={sensorTypes}
+                  setOpen={setOpen}
+                  setValue={setSensorType}
+                  setItems={setSensorTypes}
+                  placeholder="Select Sensor Type"
+                  style={styles.dropdown}
+                  dropDownStyle={styles.dropdown}
+                />
+              </View>
+            );
+          }
+          return null;
+        }}
+        keyExtractor={(item) => item.key}
+        contentContainerStyle={styles.scrollView}
+      />
 
       <TouchableOpacity style={styles.saveButton} onPress={registerSensor}>
         <Text style={styles.saveButtonText}>Register Sensor</Text>
@@ -148,16 +141,13 @@ const styles = StyleSheet.create({
     color: '#004d40',
     marginVertical: 10,
   },
-  pickerContainer: {
+  dropdown: {
+    backgroundColor: '#fff',
     borderColor: '#b0bec5',
     borderWidth: 1,
-    borderRadius: 5,
-    backgroundColor: '#fff',
     marginBottom: 20,
-  },
-  picker: {
+    borderRadius: 5,
     height: 40,
-    width: '100%',
   },
   saveButton: {
     backgroundColor: '#0277bd',
@@ -167,6 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
+    marginBottom: 20, // Added margin bottom
   },
   saveButtonText: {
     color: '#fff',

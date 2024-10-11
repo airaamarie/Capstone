@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import CustomPopup from './CustomPopup';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -8,33 +7,20 @@ const { width } = Dimensions.get('window');
 
 const ServoRegistration = ({ navigation }) => {
   const [servoUid, setServoUid] = useState('');
-  const [selectedTankId, setSelectedTankId] = useState(''); // State to hold selected tank ID
-  const [tanks, setTanks] = useState([]); // State to hold available tanks
+  const [waterPumpUid, setWaterPumpUid] = useState('');
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  useEffect(() => {
-    // Fetch available tanks from the API
-    fetch('http://192.168.68.112/CAPSTONE/api/get-tanks.php')
-      .then(response => response.json())
-      .then(data => {
-        setTanks(data); // Assuming data is an array of available tanks
-      })
-      .catch(error => {
-        Alert.alert('Error', 'Unable to fetch tanks: ' + error);
-      });
-  }, []);
-
-  const registerServo = () => {
-    if (servoUid.length === 0 || selectedTankId.length === 0) {
+  const registerDevices = () => {
+    if (servoUid.length === 0 || waterPumpUid.length === 0) {
       setMessage('Please fill all fields');
       setIsPopupVisible(true);
       return;
     }
 
-    const data = { servoUid, tankId: selectedTankId }; // Use tankId instead of tankName
+    const data = { servoUid, waterPumpUid };
 
-    fetch('http://192.168.68.112/CAPSTONE/api/register-servo.php', {
+    fetch('http://192.168.68.108/CAPSTONE/api/register-devices.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -59,32 +45,24 @@ const ServoRegistration = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Register Servo</Text>
+        <Text style={styles.headerText}>Register Devices</Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <TextInput
           style={styles.input}
           value={servoUid}
           onChangeText={setServoUid}
-          placeholder="Servo UID"
+          placeholder="Feeder UID"
         />
-
-        <Text style={styles.label}>Select Tank</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedTankId}
-            style={styles.picker}
-            onValueChange={(itemValue) => setSelectedTankId(itemValue)}
-          >
-            <Picker.Item label="Select a tank" value="" />
-            {tanks.map((tank) => (
-              <Picker.Item key={tank.tank_id} label={tank.tank_name} value={tank.tank_id} />
-            ))}
-          </Picker>
-        </View>
+        <TextInput
+          style={styles.input}
+          value={waterPumpUid}
+          onChangeText={setWaterPumpUid}
+          placeholder="Water Pump UID"
+        />
       </ScrollView>
-      <TouchableOpacity style={styles.saveButton} onPress={registerServo}>
-        <Text style={styles.saveButtonText}>Register Servo</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={registerDevices}>
+        <Text style={styles.saveButtonText}>Register Devices</Text>
       </TouchableOpacity>
       <CustomPopup
         isVisible={isPopupVisible}
@@ -131,22 +109,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 5,
     backgroundColor: '#fff',
-  },
-  label: {
-    fontSize: 18,
-    color: '#004d40',
-    marginVertical: 10,
-  },
-  pickerContainer: {
-    borderColor: '#b0bec5',
-    borderWidth: 1,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-    marginBottom: 20,
-  },
-  picker: {
-    height: 40,
-    width: '100%',
   },
   saveButton: {
     backgroundColor: '#0277bd',

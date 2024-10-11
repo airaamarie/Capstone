@@ -28,25 +28,27 @@ const AddServoTiming = () => {
 
     // Fetch Servo UIDs from the API
     useEffect(() => {
-        fetch('http://192.168.68.112/CAPSTONE/api/fetchServoUids.php')
+        fetch('http://192.168.68.108/CAPSTONE/api/fetchServoUids.php')
             .then(response => response.json())
             .then(data => {
                 if (data.servoUids) {
                     setServoUids(data.servoUids.map(uid => ({ label: uid, value: uid })));
                 } else {
-                    console.error('No servo UIDs found in response');
+                    setError('No servo UIDs found in response');
                 }
             })
             .catch(error => {
-                console.error('Error fetching servo UIDs:', error);
+                setError('Error fetching servo UIDs');
             });
     }, []);
 
     // Handle the save action
     const handleSave = () => {
+        setError(''); // Reset error message
+
         // Ensure a Servo UID is selected
         if (!servoUid) {
-            console.error('Please select a Servo UID.');
+            setError('Please select a Servo UID.');
             return;
         }
 
@@ -61,7 +63,7 @@ const AddServoTiming = () => {
         const newEntry = { servoUid, time: timeString, date, status };
 
         // Send data to the API
-        fetch('http://192.168.68.112/CAPSTONE/api/addServoTiming.php', {
+        fetch('http://192.168.68.108/CAPSTONE/api/addServoTiming.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -71,12 +73,13 @@ const AddServoTiming = () => {
             .then(response => response.json())
             .then(data => {
                 if (data.Message) {
-                    console.log(data.Message);
                     navigation.navigate('Feeding', { newEntry });
+                } else {
+                    setError('Error saving the entry');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                setError('Error saving the entry');
             });
     };
 
@@ -102,7 +105,6 @@ const AddServoTiming = () => {
                     value={timeString} // Display the entered time
                     onChangeText={setTimeString} // Update timeString as user types
                     placeholder="Enter time (HH:MM)"
-                    keyboardType="numeric" // Numeric keyboard for time input
                 />
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -152,16 +154,16 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     backButton: {
-        backgroundColor: '#0277bd', 
-        padding: 10, 
+        backgroundColor: '#0277bd',
+        padding: 10,
         borderRadius: 5,
-        marginRight: 10, 
+        marginRight: 10,
     },
     headerText: {
-        fontSize: 24, 
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#004d40', 
-        flex: 1, 
+        color: '#004d40',
+        flex: 1,
         textAlign: 'center',
     },
     formContainer: {
@@ -171,15 +173,15 @@ const styles = StyleSheet.create({
         height: 40,
         borderColor: '#b0bec5',
         borderWidth: 1,
-        marginBottom: 15, 
-        paddingHorizontal: 10, 
+        marginBottom: 15,
+        paddingHorizontal: 10,
         borderRadius: 5,
-        backgroundColor: '#fff', 
+        backgroundColor: '#fff',
     },
     label: {
-        fontSize: 18, 
-        color: '#004d40', 
-        marginVertical: 10, 
+        fontSize: 18,
+        color: '#004d40',
+        marginVertical: 10,
     },
     dropdown: {
         backgroundColor: '#fff',
@@ -190,17 +192,18 @@ const styles = StyleSheet.create({
         height: 40,
     },
     saveButton: {
-        backgroundColor: '#0277bd', 
-        paddingVertical: 10, 
-        paddingHorizontal: 20, 
+        backgroundColor: '#0277bd',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 20, 
+        marginTop: 20,
+        marginBottom: 20, // Added margin bottom
     },
     saveButtonText: {
         color: '#fff',
-        fontSize: 18, 
+        fontSize: 18,
         fontWeight: 'bold',
     },
     errorText: {

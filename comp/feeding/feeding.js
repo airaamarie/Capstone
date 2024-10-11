@@ -19,14 +19,14 @@ const Feeding = () => {
   );
 
   const fetchData = () => {
-    fetch('http://192.168.68.112/CAPSTONE/api/fetchServoTimings.php')
+    fetch('http://192.168.68.108/CAPSTONE/api/fetchServoTimings.php')
       .then(response => response.json())
       .then(data => {
         console.log('API Response:', data);
         if (data.servoTimings) {
           setServoTimings(data.servoTimings);
         } else {
-          console.error('No servo timings found in response');
+          Alert.alert('Notice', 'No servo timings found in response');
         }
       })
       .catch(error => {
@@ -47,7 +47,7 @@ const Feeding = () => {
           text: "OK",
           onPress: () => {
             setLoading(true);
-            fetch('http://192.168.68.112/CAPSTONE/api/deleteServoTiming.php', {
+            fetch('http://192.168.68.108/CAPSTONE/api/deleteServoTiming.php', {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',

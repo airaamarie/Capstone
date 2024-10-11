@@ -1,26 +1,123 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, FlatList } from 'react-native';
 import CustomPopup from './CustomPopup';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import DropDownPicker from 'react-native-dropdown-picker';
+
+const { width } = Dimensions.get('window');
 
 const FishTankRegistration = ({ navigation }) => {
-  const [tankName, setTankName] = useState('');
+  const [tankId, setTankId] = useState(null);
+  const [selectedServo, setSelectedServo] = useState(null);
+  const [selectedPump, setSelectedPump] = useState(null);
+  const [sensor1, setSensor1] = useState(null);
+  const [sensor2, setSensor2] = useState(null);
+  const [sensor3, setSensor3] = useState(null);
+  const [servos, setServos] = useState([]);
+  const [pumps, setPumps] = useState([]);
+  const [sensor1Uids, setSensor1Uids] = useState([]);
+  const [sensor2Uids, setSensor2Uids] = useState([]);
+  const [sensor3Uids, setSensor3Uids] = useState([]);
+  const [tanks, setTanks] = useState([]);
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [openServo, setOpenServo] = useState(false);
+  const [openPump, setOpenPump] = useState(false);
+  const [openSensor1, setOpenSensor1] = useState(false);
+  const [openSensor2, setOpenSensor2] = useState(false);
+  const [openSensor3, setOpenSensor3] = useState(false);
+  const [openTank, setOpenTank] = useState(false);
+
+  useEffect(() => {
+    const fetchTanks = async () => {
+      try {
+        const response = await fetch('http://192.168.68.108/CAPSTONE/api/fetchTankNames.php');
+        const data = await response.json();
+        if (data.tanks) {
+          setTanks(data.tanks);
+        } else {
+          console.error('No tanks found in response');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch tanks: ' + error);
+      }
+    };
+
+    const fetchServos = async () => {
+      try {
+        const response = await fetch('http://192.168.68.108/CAPSTONE/api/fetchServoUids.php');
+        const data = await response.json();
+        if (data.servoUids) {
+          setServos(data.servoUids.map(uid => ({ label: uid, value: uid })));
+        } else {
+          console.error('No servo UIDs found in response');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch servos: ' + error);
+      }
+    };
+
+    const fetchPumps = async () => {
+      try {
+        const response = await fetch('http://192.168.68.108/CAPSTONE/api/fetchPumpUids.php');
+        const data = await response.json();
+        if (data.pumpUids) {
+          setPumps(data.pumpUids.map(uid => ({ label: uid, value: uid })));
+        } else {
+          console.error('No pump UIDs found in response');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch pumps: ' + error);
+      }
+    };
+
+    const fetchSensorUidsByType = async (sensorType) => {
+      try {
+        const response = await fetch(`http://192.168.68.108/CAPSTONE/api/fetchSensors.php?sensor_type=${sensorType}`);
+        const data = await response.json();
+        return data.sensorUids || [];
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch sensors: ' + error);
+        return [];
+      }
+    };
+
+    const fetchSensors = async () => {
+      const tempSensors = await fetchSensorUidsByType('Temperature');
+      const pHSensors = await fetchSensorUidsByType('pH');
+      const ammoniaSensors = await fetchSensorUidsByType('Ammonia');
+
+      setSensor1Uids(tempSensors);
+      setSensor2Uids(pHSensors);
+      setSensor3Uids(ammoniaSensors);
+    };
+
+    fetchTanks();
+    fetchServos();
+    fetchPumps();
+    fetchSensors();
+  }, []);
 
   const registerTank = () => {
-    if (tankName.length === 0) {
-      setMessage('Please fill the tank name field');
+    if (!tankId || !selectedServo || !selectedPump || !sensor1 || !sensor2 || !sensor3) {
+      setMessage('Please fill all fields');
       setIsPopupVisible(true);
       return;
     }
 
-    const data = { tank_name: tankName };
+    const data = {
+      tankId,
+      selectedServo,
+      selectedPump,
+      sensor1,
+      sensor2,
+      sensor3,
+    };
 
-    fetch('http://192.168.68.112/CAPSTONE/api/register-tank.php', {
+    fetch('http://192.168.68.108/CAPSTONE/api/register_tanksensors.php', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
@@ -36,6 +133,80 @@ const FishTankRegistration = ({ navigation }) => {
       });
   };
 
+  const renderContent = () => (
+    <View style={styles.dropdownContainer}>
+      <DropDownPicker
+        open={openTank}
+        value={tankId}
+        items={tanks}
+        setOpen={setOpenTank}
+        setValue={setTankId}
+        setItems={setTanks}
+        placeholder="Select Fish Tank"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={10} // Ensures the first dropdown appears on top when opened
+      />
+      <DropDownPicker
+        open={openServo}
+        value={selectedServo}
+        items={servos}
+        setOpen={setOpenServo}
+        setValue={setSelectedServo}
+        setItems={setServos}
+        placeholder="Select Feeder"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={9} // Adjust zIndex for overlapping
+      />
+      <DropDownPicker
+        open={openPump}
+        value={selectedPump}
+        items={pumps}
+        setOpen={setOpenPump}
+        setValue={setSelectedPump}
+        setItems={setPumps}
+        placeholder="Select Water Pump"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={8}
+      />
+      <DropDownPicker
+        open={openSensor1}
+        value={sensor1}
+        items={sensor1Uids.map((uid) => ({ label: uid, value: uid }))}
+        setOpen={setOpenSensor1}
+        setValue={setSensor1}
+        placeholder="Select Temperature Sensor"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={7}
+      />
+      <DropDownPicker
+        open={openSensor2}
+        value={sensor2}
+        items={sensor2Uids.map((uid) => ({ label: uid, value: uid }))}
+        setOpen={setOpenSensor2}
+        setValue={setSensor2}
+        placeholder="Select pH Sensor"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={6}
+      />
+      <DropDownPicker
+        open={openSensor3}
+        value={sensor3}
+        items={sensor3Uids.map((uid) => ({ label: uid, value: uid }))}
+        setOpen={setOpenSensor3}
+        setValue={setSensor3}
+        placeholder="Select Ammonia Sensor"
+        style={styles.dropdown}
+        dropDownStyle={styles.dropdown}
+        zIndex={5}
+      />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -44,16 +215,14 @@ const FishTankRegistration = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Register Fish Tank</Text>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <TextInput
-          style={styles.input}
-          value={tankName}
-          onChangeText={setTankName}
-          placeholder="Fish Tank Name"
-        />
-      </ScrollView>
-      <TouchableOpacity style={styles.saveButton} onPress={registerTank}>
-        <Text style={styles.saveButtonText}>Register Tank</Text>
+      <FlatList
+        data={[{ key: 'content' }]}
+        renderItem={renderContent}
+        keyExtractor={(item) => item.key}
+        contentContainerStyle={styles.scrollView}
+      />
+      <TouchableOpacity style={styles.registerButton} onPress={registerTank}>
+        <Text style={styles.registerButtonText}>Register Tank</Text>
       </TouchableOpacity>
       <CustomPopup
         isVisible={isPopupVisible}
@@ -92,27 +261,27 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
   },
-  input: {
-    height: 40,
+  dropdownContainer: {
+    paddingBottom: 20, // Add some padding at the bottom for spacing
+  },
+  dropdown: {
+    backgroundColor: '#fff',
     borderColor: '#b0bec5',
     borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    marginBottom: 30, // Adjust spacing between dropdowns
     borderRadius: 5,
-    backgroundColor: '#fff',
+    height: 40,
   },
-  saveButton: {
+  registerButton: {
     backgroundColor: '#0277bd',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: 'center',
     marginTop: 20,
   },
-  saveButtonText: {
+  registerButtonText: {
     color: '#fff',
-    fontSize: 18,
     fontWeight: 'bold',
   },
 });

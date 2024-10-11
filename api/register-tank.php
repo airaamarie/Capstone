@@ -9,15 +9,24 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$EncodedData = file_get_contents('php://input');
-$DecodedData = json_decode($EncodedData, true);
-
-$tankName = $DecodedData['tank_name'];
-
+$Response = array(); // Initialize the response array
 try {
+    $EncodedData = file_get_contents('php://input');
+    $DecodedData = json_decode($EncodedData, true);
+
+    // Check if tank_name exists in the decoded data
+    if (!isset($DecodedData['tank_name']) || empty($DecodedData['tank_name'])) {
+        throw new Exception("Tank name is required.");
+    }
+
+    $tankName = $DecodedData['tank_name'];
+
     // Check if the tank name already exists
     $SQL = "SELECT * FROM tank WHERE tank_name = ?";
     $stmt = $CN->prepare($SQL);
+    if (!$stmt) {
+        throw new Exception("Failed to prepare statement: " . $CN->error);
+    }
     $stmt->bind_param('s', $tankName);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -27,20 +36,26 @@ try {
     } else {
         // Insert new tank if not already registered
         $IQ = $CN->prepare("INSERT INTO tank (tank_name) VALUES (?)");
+        if (!$IQ) {
+            throw new Exception("Failed to prepare insert statement: " . $CN->error);
+        }
         $IQ->bind_param('s', $tankName);
         if ($IQ->execute()) {
             $Message = "Tank name '$tankName' has been successfully registered.";
         } else {
-            $Message = "Error occurred during tank registration.";
+            throw new Exception("Error occurred during tank registration: " . $IQ->error);
         }
         $IQ->close();
     }
 
     $stmt->close();
-    $CN->close();
-
 } catch (Exception $e) {
     $Message = "Error: " . $e->getMessage();
+}
+
+// Close the database connection
+if (isset($CN)) {
+    $CN->close();
 }
 
 $Response = array("Message" => $Message);
