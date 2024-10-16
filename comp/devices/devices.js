@@ -2,14 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Guideline = () => {
+const Devices = () => {
   const navigation = useNavigation();
 
   const menuItems = [
-    { id: '1', title: 'Parameters', screen: 'Parameters' },
-    { id: '2', title: 'Food', screen: 'Food' },
-    { id: '3', title: 'User Manual', screen: 'UserManual' },
-    { id: '4', title: 'Tips', screen: 'Tips' },
+    { id: '1', title: 'Water Pump', screen: 'WaterPump' },
+    { id: '2', title: 'Feeder', screen: 'Feeding' },
   ];
 
   const renderItem = ({ item }) => (
@@ -24,7 +22,7 @@ const Guideline = () => {
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
-      <Text style={styles.title}>Guideline</Text>
+      <Text style={styles.title}>Automated Devices</Text>
       <FlatList
         data={menuItems}
         renderItem={renderItem}
@@ -87,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Guideline;
+export default Devices;

@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#B0E0E6',
     padding: 20,
   },
   headerWrapper: {

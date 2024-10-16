@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#e0f7fa', 
+    backgroundColor: '#B0E0E6', 
   },
   logo: {
     width: 100,

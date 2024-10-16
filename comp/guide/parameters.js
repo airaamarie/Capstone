@@ -61,7 +61,7 @@ const Parameters = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#B0E0E6',
     paddingTop: 20,
   },
   scrollContainer: {

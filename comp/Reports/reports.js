@@ -15,6 +15,9 @@ const Reports = () => {
       <TouchableOpacity style={[styles.button, styles.buttonBottom]} onPress={() => navigation.navigate('PH')}>
         <Text style={styles.buttonText}>pH LEVEL</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, styles.buttonBottom]} onPress={() => navigation.navigate('Ammonia')}>
+        <Text style={styles.buttonText}>AMMONIA</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -25,7 +28,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#B0E0E6',
   },
   logo: {
     width: 100,

@@ -28,7 +28,7 @@ const AddServoTiming = () => {
 
     // Fetch Servo UIDs from the API
     useEffect(() => {
-        fetch('http://192.168.68.108/CAPSTONE/api/fetchServoUids.php')
+        fetch('http://192.168.101.76/CAPSTONE/api/fetchServoUids.php')
             .then(response => response.json())
             .then(data => {
                 if (data.servoUids) {
@@ -63,7 +63,7 @@ const AddServoTiming = () => {
         const newEntry = { servoUid, time: timeString, date, status };
 
         // Send data to the API
-        fetch('http://192.168.68.108/CAPSTONE/api/addServoTiming.php', {
+        fetch('http://192.168.101.76/CAPSTONE/api/addServoTiming.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#e0f7fa',
+        backgroundColor: '#B0E0E6',
     },
     headerContainer: {
         flexDirection: 'row',

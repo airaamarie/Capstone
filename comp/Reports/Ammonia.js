@@ -5,32 +5,30 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
-const PH = () => {
+const Ammonia = () => {
   const navigation = useNavigation();
 
   const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
     datasets: [
       {
-        data: [7.0, 7.2, 6.8, 7.1, 7.3, 7.4, 7.5],
+        data: [22, 24, 21, 23, 25],
       },
     ],
   };
 
   const historyData = [
-    { date: '2024-01-01', pH: 7.0 },
-    { date: '2024-02-01', pH: 7.2 },
-    { date: '2024-03-01', pH: 6.8 },
-    { date: '2024-04-01', pH: 7.1 },
-    { date: '2024-05-01', pH: 7.3 },
-    { date: '2024-06-01', pH: 7.4 },
-    { date: '2024-07-01', pH: 7.5 },
+    { date: '2024-07-15', ammonia: 22 },
+    { date: '2024-07-16', ammonia: 24 },
+    { date: '2024-07-17', ammonia: 21 },
+    { date: '2024-07-18', ammonia: 23 },
+    { date: '2024-07-19', ammonia: 25 },
   ];
 
   const renderHistoryItem = ({ item }) => (
     <View style={styles.historyItem}>
       <Text style={styles.historyDate}>{item.date}</Text>
-      <Text style={styles.historyValue}>{item.pH.toFixed(2)}</Text>
+      <Text style={styles.historyValue}>{item.ammonia.toFixed(1)} ppm</Text>
     </View>
   );
 
@@ -40,16 +38,18 @@ const PH = () => {
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
       <View style={styles.card}>
-        <Text style={styles.text}>Parameters Content</Text>
+        <Text style={styles.text}>Ammonia Reports</Text>
         <LineChart
           data={data}
           width={width * 0.8} 
           height={220}
+          yAxisLabel=""
+          yAxisSuffix=" ppm"
           chartConfig={{
             backgroundColor: '#e26a00',
             backgroundGradientFrom: '#fb8c00',
             backgroundGradientTo: '#ffa726',
-            decimalPlaces: 2,
+            decimalPlaces: 1,
             color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             style: {
@@ -66,7 +66,7 @@ const PH = () => {
         />
       </View>
       <View style={styles.card}>
-        <Text style={styles.historyTitle}>History</Text>
+        <Text style={styles.historyTitle}>Ammonia History</Text>
         <FlatList
           data={historyData}
           renderItem={renderHistoryItem}
@@ -87,7 +87,7 @@ const PH = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#B0E0E6',
+    backgroundColor: '#B0E0E6', // Light gray background color
     padding: 16,
   },
   headerContainer: {
@@ -154,4 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PH;
+export default Ammonia;

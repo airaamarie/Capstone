@@ -87,7 +87,7 @@ const Temperature = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#B0E0E6',
     padding: 16,
   },
   headerContainer: {

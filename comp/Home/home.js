@@ -11,6 +11,7 @@ import AnalyticsIcon from '../../assets/ph.png';
 import Feeding from '../feeding/feeding';
 import Profile from '../profile/profile';
 import Registration from '../registration/registration';
+import Devices from '../devices/devices';
 
 const Drawer = createDrawerNavigator();
 
@@ -134,9 +135,9 @@ const CustomSidebar = () => {
         <Text style={styles.sidebarText}>Reports</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
-      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Feeding')}>
+      <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Devices')}>
         <Image source={require('../../assets/time.png')} style={styles.feedImage} />
-        <Text style={styles.sidebarText}>Feeding Time</Text>
+        <Text style={styles.sidebarText}>Devices</Text>
       </TouchableOpacity>
       <View style={styles.sidebarSeparator} />
       <TouchableOpacity style={styles.sidebarItem} onPress={() => navigation.navigate('Profile')}>
@@ -185,13 +186,13 @@ export default function HomeScreen() {
     <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
       <Drawer.Screen name="Dashboard" component={DashboardScreen} />
       <Drawer.Screen name="Reports" component={Reports} />
-      <Drawer.Screen name="Feeding" component={Feeding} />
+      <Drawer.Screen name="Devices" component={Devices} />
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="GuideLine" component={Guideline} />
       <Drawer.Screen name="Registration" component={Registration} />
       <Drawer.Screen name="SignIn">
         {() => {
-          const navigation = useNavigation();
+          const navigation = useNavigation();r
           navigation.navigate('SignIn');
           return null;
         }}

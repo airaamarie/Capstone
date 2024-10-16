@@ -27,7 +27,7 @@ const SensorRegistration = ({ navigation }) => {
 
     const data = { sensorUid, sensorType };
 
-    fetch('http://192.168.68.108/CAPSTONE/api/register-sensor.php', {
+    fetch('http://192.168.101.76/CAPSTONE/api/register-sensor.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

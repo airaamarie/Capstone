@@ -19,7 +19,7 @@ const Feeding = () => {
   );
 
   const fetchData = () => {
-    fetch('http://192.168.68.108/CAPSTONE/api/fetchServoTimings.php')
+    fetch('http://192.168.101.76/CAPSTONE/api/fetchServoTimings.php')
       .then(response => response.json())
       .then(data => {
         console.log('API Response:', data);
@@ -47,7 +47,7 @@ const Feeding = () => {
           text: "OK",
           onPress: () => {
             setLoading(true);
-            fetch('http://192.168.68.108/CAPSTONE/api/deleteServoTiming.php', {
+            fetch('http://192.168.101.76/CAPSTONE/api/deleteServoTiming.php', {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -104,6 +104,9 @@ const Feeding = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={20} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.headerText}>Servo Timings</Text>
         <TouchableOpacity 
           onPress={handleAddNew} 
@@ -132,13 +135,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#B0E0E6',
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: '#0277bd',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
   },
   headerText: {
     fontSize: 24,

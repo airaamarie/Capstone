@@ -19,7 +19,7 @@
 
         const data = { tank_name: tankName }; // Ensure the key matches your PHP API
 
-        fetch('http://192.168.68.108/CAPSTONE/api/register-tank.php', { // Adjust the URL as needed
+        fetch('http://192.168.101.76/CAPSTONE/api/register-tank.php', { // Adjust the URL as needed
         method: 'POST',
         headers: {
             'Accept': 'application/json',

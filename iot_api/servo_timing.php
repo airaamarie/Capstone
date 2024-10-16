@@ -9,7 +9,7 @@ $servo_uid = isset($_GET['servo_uid']) ? $_GET['servo_uid'] : null;
 
 if ($servo_uid) {
     try {
-        $SQL = "SELECT timing_id, servo_uid, time, status FROM servo_timings WHERE servo_uid = ?";
+        $SQL = "SELECT servo_uid, time, status FROM servo_timings WHERE servo_uid = ?";
         $stmt = $CN->prepare($SQL);
         $stmt->bind_param("s", $servo_uid);  // Bind the servo UID parameter
         $stmt->execute();
@@ -19,7 +19,6 @@ if ($servo_uid) {
             $servoTimings = [];
             while ($row = $result->fetch_assoc()) {
                 $servoTimings[] = [
-                    'id' => $row['timing_id'],
                     'servo_uid' => $row['servo_uid'],
                     'time' => $row['time'],
                     'status' => $row['status']

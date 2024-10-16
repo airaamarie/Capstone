@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start', 
     padding: 20,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#B0E0E6',
   },
   header: {
     alignItems: 'center',
