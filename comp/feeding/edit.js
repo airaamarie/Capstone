@@ -13,7 +13,7 @@ const Edit = ({ route, navigation }) => {
   const handleSave = () => {
     const updatedItem = { ...item, servo_uid: servoUid, time, status };
 
-    fetch('http://192.168.101.76/CAPSTONE/api/updateServoTiming.php', {
+    fetch('https://sba-com.preview-domain.com/api/updateServoTiming.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

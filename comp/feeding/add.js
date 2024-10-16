@@ -28,7 +28,7 @@ const AddServoTiming = () => {
 
     // Fetch Servo UIDs from the API
     useEffect(() => {
-        fetch('http://192.168.101.76/CAPSTONE/api/fetchServoUids.php')
+        fetch('https://sba-com.preview-domain.com/api/fetchServoUids.php')
             .then(response => response.json())
             .then(data => {
                 if (data.servoUids) {
@@ -63,7 +63,7 @@ const AddServoTiming = () => {
         const newEntry = { servoUid, time: timeString, date, status };
 
         // Send data to the API
-        fetch('http://192.168.101.76/CAPSTONE/api/addServoTiming.php', {
+        fetch('https://sba-com.preview-domain.com/api/addServoTiming.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

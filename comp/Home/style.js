@@ -184,6 +184,27 @@ const styles = StyleSheet.create({
   subMenuItem: {
     marginVertical: 10,
   },
+  filterButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Space between to position items at ends
+    alignItems: 'center', // Center the button content vertically
+    backgroundColor: '#004d40', // Dark background for contrast
+    padding: 10,
+    borderRadius: 20,
+    marginBottom: 15,
+    elevation: 3, // Shadow effect for better visibility
+    width: '90%', // Ensure the button extends horizontally
+    alignSelf: 'center', // Center the button itself
+  },
+  filterButtonText: {
+    color: '#fff', // White text for visibility
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  filterIcon: {
+    width: 20,
+    height: 20,
+  },
 });
 
 export default styles;

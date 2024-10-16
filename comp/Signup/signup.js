@@ -28,7 +28,7 @@ export default class SignUp extends Component {
       });
       alert("Required Field Is Missing!!!");
     } else {
-      var InsertAPIURL = "http://192.168.101.76/CAPSTONE/api/signup.php"; 
+      var InsertAPIURL = "https://sba-com.preview-domain.com/api/signup.php"; 
 
       var headers = {
         'Accept': 'application/json',

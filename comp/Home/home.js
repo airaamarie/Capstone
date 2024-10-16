@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView, Alert } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -8,24 +8,47 @@ import Guideline from '../guide/guideline';
 import Reports from '../Reports/reports';
 import ThermometerIcon from '../../assets/thermometer.png';
 import AnalyticsIcon from '../../assets/ph.png';
-import Feeding from '../feeding/feeding';
+import AmmoniaIcon from '../../assets/ammonia.png';
 import Profile from '../profile/profile';
 import Registration from '../registration/registration';
 import Devices from '../devices/devices';
+import FilterIcon from '../../assets/filter.png';
 
 const Drawer = createDrawerNavigator();
 
-const DashboardScreen = () => {
+const DashboardScreen = ({ filter, onFilterChange }) => {
+  const [data, setData] = useState({
+    temperature: 0,
+    ph: 0,
+    ammonia: 0,
+  });
+
+  const filterData = (filter) => {
+    switch (filter) {
+      case 'high':
+        return { temperature: 30, ph: 8.0, ammonia: 1.0 };
+      case 'low':
+        return { temperature: 25, ph: 6.5, ammonia: 0.2 };
+      case 'default':
+        return { temperature: 28, ph: 7.2, ammonia: 0.5 };
+      default:
+        return { temperature: 0, ph: 0, ammonia: 0 };
+    }
+  };
+
+  const filteredData = filterData(filter);
+
   const pieChartData = [
-    { name: 'Temp', population: 28, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'pH', population: 7.2, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Temp', population: filteredData.temperature, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'pH', population: filteredData.ph, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Ammonia', population: filteredData.ammonia, color: 'rgba(75, 192, 192, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
   ];
 
   const barChartData = {
-    labels: ['Temperature', 'pH'],
+    labels: ['Temperature', 'pH', 'Ammonia'],
     datasets: [
       {
-        data: [28, 7.2],
+        data: [filteredData.temperature, filteredData.ph, filteredData.ammonia],
       },
     ],
   };
@@ -33,23 +56,51 @@ const DashboardScreen = () => {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
+        {/* Adjusted Filter Button */}
+        <TouchableOpacity
+          onPress={() => {
+            Alert.alert(
+              'Filter Data',
+              'Choose a filter option',
+              [
+                { text: 'Tank 1', onPress: () => onFilterChange('high') },
+                { text: 'Tank 2', onPress: () => onFilterChange('low') },
+                { text: 'Tank 3', onPress: () => onFilterChange('default') },
+                { text: 'Cancel', style: 'cancel' },
+              ]
+            );
+          }}
+          style={styles.filterButtonContainer}
+        >
+          <Image source={FilterIcon} style={styles.filterIcon} />
+          <View style={styles.filterTextContainer}>
+            <Text style={styles.filterButtonText}>Filter</Text>
+            <Text style={styles.filterSubText}>Choose a tank</Text>
+          </View>
+        </TouchableOpacity>
+
         <SensorCard
           sensorName="Temperature"
-          sensorData="28"
+          sensorData={filteredData.temperature}
           icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />}
         />
         <SensorCard
           sensorName="pH"
-          sensorData="7.2"
+          sensorData={filteredData.ph}
           icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />}
+        />
+        <SensorCard
+          sensorName="Ammonia"
+          sensorData={filteredData.ammonia}
+          icon={<Image source={AmmoniaIcon} style={styles.sensorIcon} />}
         />
 
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
           <PieChart
             data={pieChartData}
-            width={Dimensions.get('window').width - 78}  // Adjusted width
-            height={180}  // Adjusted height
+            width={Dimensions.get('window').width - 78}
+            height={180}
             chartConfig={{
               backgroundGradientFrom: '#fff',
               backgroundGradientTo: '#fff',
@@ -69,8 +120,8 @@ const DashboardScreen = () => {
           <BarChart
             style={{ marginVertical: 8, borderRadius: 16 }}
             data={barChartData}
-            width={Dimensions.get('window').width - 48}  // Adjusted width
-            height={180}  // Adjusted height
+            width={Dimensions.get('window').width - 48}
+            height={180}
             yAxisLabel=""
             chartConfig={{
               backgroundGradientFrom: '#fff',
@@ -87,22 +138,6 @@ const DashboardScreen = () => {
   );
 };
 
-
-const ReportsScreen = () => {
-  const navigation = useNavigation();
-
-  return (
-    <View style={styles.screen}>
-      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('WaterTemperature')}>
-        <Text style={styles.sidebarText}>Temperature Sensor</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.subMenuItem} onPress={() => navigation.navigate('PhLevel')}>
-        <Text style={styles.sidebarText}>pH Sensor</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
 const SensorCard = ({ sensorName, sensorData, icon }) => (
   <View style={[styles.sensorCard, styles.cardContainer]}>
     <View style={styles.sensorText}>
@@ -114,7 +149,6 @@ const SensorCard = ({ sensorName, sensorData, icon }) => (
 );
 
 const handleLogout = (navigation) => {
-  // Add your logout logic here
   Alert.alert("Logout", "You have been logged out.");
   navigation.navigate('SignIn');
 };
@@ -163,40 +197,32 @@ const CustomSidebar = () => {
   );
 };
 
-const FeedingTimeScreen = () => (
-  <View style={styles.screen}>
-    <Text>Feeding Time Screen</Text>
-  </View>
-);
-
-const ProfileScreen = () => (
-  <View style={styles.screen}>
-    <Text>Profile Screen</Text>
-  </View>
-);
-
-const GuideScreen = () => (
-  <View style={styles.screen}>
-    <Text>Guide Screen</Text>
-  </View>
-);
-
 export default function HomeScreen() {
+  const [filter, setFilter] = useState('');
+
   return (
-    <Drawer.Navigator initialRouteName="Dashboard" drawerContent={() => <CustomSidebar />}>
-      <Drawer.Screen name="Dashboard" component={DashboardScreen} />
+    <Drawer.Navigator
+      initialRouteName="Dashboard"
+      drawerContent={() => <CustomSidebar />}
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#4C9A2A',
+          height: 80,
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          color: '#fff',
+        },
+      }}
+    >
+      <Drawer.Screen name="Dashboard">
+        {() => <DashboardScreen filter={filter} onFilterChange={setFilter} />}
+      </Drawer.Screen>
       <Drawer.Screen name="Reports" component={Reports} />
       <Drawer.Screen name="Devices" component={Devices} />
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="GuideLine" component={Guideline} />
       <Drawer.Screen name="Registration" component={Registration} />
-      <Drawer.Screen name="SignIn">
-        {() => {
-          const navigation = useNavigation();r
-          navigation.navigate('SignIn');
-          return null;
-        }}
-      </Drawer.Screen>
     </Drawer.Navigator>
   );
 }

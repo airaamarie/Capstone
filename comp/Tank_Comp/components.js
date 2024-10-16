@@ -1,33 +1,38 @@
-    import React, { useState } from 'react';
-    import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-    import CustomPopup from './CustomPopup'; // Ensure you have this component for the popup
-    import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import CustomPopup from './CustomPopup'; // Ensure you have this component for the popup
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-    const { width } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-    const TankRegistration = ({ navigation }) => {
+const TankRegistration = ({ navigation }) => {
     const [tankName, setTankName] = useState('');
     const [message, setMessage] = useState('');
     const [isPopupVisible, setIsPopupVisible] = useState(false);
 
     const registerTank = () => {
         if (tankName.length === 0) {
-        setMessage('Please enter a tank name');
-        setIsPopupVisible(true);
-        return;
+            setMessage('Please enter a tank name');
+            setIsPopupVisible(true);
+            return;
         }
 
         const data = { tank_name: tankName }; // Ensure the key matches your PHP API
 
-        fetch('http://192.168.101.76/CAPSTONE/api/register-tank.php', { // Adjust the URL as needed
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        fetch('https://sba-com.preview-domain.com/api/register-tank.php', { // Adjust the URL as needed
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(response => {
             setMessage(response.Message);
             setIsPopupVisible(true);
@@ -40,33 +45,33 @@
 
     return (
         <View style={styles.container}>
-        <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Icon name="arrow-left" size={20} color="#fff" />
+            <View style={styles.headerContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name="arrow-left" size={20} color="#fff" />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>Register Tank</Text>
+            </View>
+            <ScrollView contentContainerStyle={styles.scrollView}>
+                <TextInput
+                    style={styles.input}
+                    value={tankName}
+                    onChangeText={setTankName}
+                    placeholder="Tank Name"
+                />
+            </ScrollView>
+            <TouchableOpacity style={styles.saveButton} onPress={registerTank}>
+                <Text style={styles.saveButtonText}>Register Tank</Text>
             </TouchableOpacity>
-            <Text style={styles.headerText}>Register Tank</Text>
-        </View>
-        <ScrollView contentContainerStyle={styles.scrollView}>
-            <TextInput
-            style={styles.input}
-            value={tankName}
-            onChangeText={setTankName}
-            placeholder="Tank Name"
+            <CustomPopup
+                isVisible={isPopupVisible}
+                message={message}
+                onClose={() => setIsPopupVisible(false)}
             />
-        </ScrollView>
-        <TouchableOpacity style={styles.saveButton} onPress={registerTank}>
-            <Text style={styles.saveButtonText}>Register Tank</Text>
-        </TouchableOpacity>
-        <CustomPopup
-            isVisible={isPopupVisible}
-            message={message}
-            onClose={() => setIsPopupVisible(false)}
-        />
         </View>
     );
-    };
+};
 
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#B0E0E6',
@@ -117,6 +122,6 @@
         fontSize: 18,
         fontWeight: 'bold',
     },
-    });
+});
 
-    export default TankRegistration;
+export default TankRegistration;

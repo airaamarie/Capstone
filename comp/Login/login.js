@@ -17,37 +17,38 @@ export default class SignIn extends Component {
   }
 
   InsertRecord = () => {
-    var userName = this.state.u_name;
-    var userPass = this.state.u_pass;
+    const { u_name, u_pass } = this.state;
 
-    if (userName.length === 0 || userPass.length === 0) {
-      // Update error states to display error messages
+    // Validate input fields
+    if (u_name.length === 0 || u_pass.length === 0) {
       this.setState({
-        u_nameError: userName.length === 0,
-        u_passError: userPass.length === 0,
-      });n
+        u_nameError: u_name.length === 0,
+        u_passError: u_pass.length === 0,
+      });
       alert("Required Field Is Missing!!!");
-    } else {
-      var APIURL = "http://192.168.101.76/CAPSTONE/api/login.php";
+      return; // Early return to prevent further execution
+    }
 
-      var headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
+    const APIURL = 'https://sba-com.preview-domain.com/api/login.php';
 
-      var Data = {
-        u_name: this.state.u_name,
-        u_pass: this.state.u_pass
-      };
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
 
-      console.log("Sending request to:", APIURL);
-      console.log("Request data:", Data);
+    const Data = {
+      u_name: this.state.u_name,
+      u_pass: this.state.u_pass
+    };
 
-      fetch(APIURL, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(Data)
-      })
+    console.log("Sending request to:", APIURL);
+    console.log("Request data:", Data);
+
+    fetch(APIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(Data)
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -65,14 +66,12 @@ export default class SignIn extends Component {
         console.error("ERROR FOUND:", error);
         alert("Error Occurred: " + error.message);
       });
-    }
   }
 
   updateSecureTextEntry() {
-    this.setState({
-      ...this.state,
-      secureTextEntry: !this.state.secureTextEntry
-    });
+    this.setState(prevState => ({
+      secureTextEntry: !prevState.secureTextEntry
+    }));
   }
 
   render() {
@@ -80,7 +79,7 @@ export default class SignIn extends Component {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
-          
+
           <Text style={styles.label}>Username</Text>
           <TextInput
             placeholder="Enter your Username"
@@ -89,7 +88,7 @@ export default class SignIn extends Component {
             onChangeText={u_name => this.setState({ u_name, u_nameError: false })}
           />
           {this.state.u_nameError && <Text style={styles.errorMessage}>Please enter your email or phone number</Text>}
-          
+
           <Text style={styles.label}>Password</Text>
           <View style={[styles.passwordContainer, this.state.u_passError && styles.errorInput]}>
             <TextInput
@@ -108,7 +107,7 @@ export default class SignIn extends Component {
             </TouchableOpacity>
           </View>
           {this.state.u_passError && <Text style={styles.errorMessage}>Please enter your password</Text>}
-          
+
           <TouchableOpacity style={styles.button} onPress={this.InsertRecord}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>

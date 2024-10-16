@@ -31,7 +31,7 @@ const FishTankRegistration = ({ navigation }) => {
   useEffect(() => {
     const fetchTanks = async () => {
       try {
-        const response = await fetch('http://192.168.101.76/CAPSTONE/api/fetchTankNames.php');
+        const response = await fetch('https://sba-com.preview-domain.com/api/fetchTankNames.php');
         const data = await response.json();
         if (data.tanks) {
           setTanks(data.tanks);
@@ -45,7 +45,7 @@ const FishTankRegistration = ({ navigation }) => {
 
     const fetchServos = async () => {
       try {
-        const response = await fetch('http://192.168.101.76/CAPSTONE/api/fetchServoUids.php');
+        const response = await fetch('https://sba-com.preview-domain.com/api/fetchServoUids.php');
         const data = await response.json();
         if (data.servoUids) {
           setServos(data.servoUids.map(uid => ({ label: uid, value: uid })));
@@ -59,7 +59,7 @@ const FishTankRegistration = ({ navigation }) => {
 
     const fetchPumps = async () => {
       try {
-        const response = await fetch('http://192.168.101.76/CAPSTONE/api/fetchPumpUids.php');
+        const response = await fetch('https://sba-com.preview-domain.com/api/fetchPumpUids.php');
         const data = await response.json();
         if (data.pumpUids) {
           setPumps(data.pumpUids.map(uid => ({ label: uid, value: uid })));
@@ -73,7 +73,7 @@ const FishTankRegistration = ({ navigation }) => {
 
     const fetchSensorUidsByType = async (sensorType) => {
       try {
-        const response = await fetch(`http://192.168.101.76/CAPSTONE/api/fetchSensors.php?sensor_type=${sensorType}`);
+        const response = await fetch(`https://sba-com.preview-domain.com/api/fetchSensors.php?sensor_type=${sensorType}`);
         const data = await response.json();
         return data.sensorUids || [];
       } catch (error) {
@@ -114,7 +114,7 @@ const FishTankRegistration = ({ navigation }) => {
       sensor3,
     };
 
-    fetch('http:/192.168.101.76/CAPSTONE/api/register_tanksensors.php', {
+    fetch('https://sba-com.preview-domain.com/api/register_tanksensors.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

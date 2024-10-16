@@ -19,18 +19,24 @@ const Feeding = () => {
   );
 
   const fetchData = () => {
-    fetch('http://192.168.101.76/CAPSTONE/api/fetchServoTimings.php')
-      .then(response => response.json())
+    fetch('https://sba-com.preview-domain.com/api/fetchServoTimings.php')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         console.log('API Response:', data);
         if (data.servoTimings) {
           setServoTimings(data.servoTimings);
         } else {
-          Alert.alert('Notice', 'No servo timings found in response');
+          Alert.alert('Notice', data.message || 'No servo timings found in response');
         }
       })
       .catch(error => {
         console.error('Error fetching servo timings:', error);
+        Alert.alert('Error', 'Failed to fetch servo timings.');
       });
   };
 
@@ -47,19 +53,25 @@ const Feeding = () => {
           text: "OK",
           onPress: () => {
             setLoading(true);
-            fetch('http://192.168.101.76/CAPSTONE/api/deleteServoTiming.php', {
-              method: 'DELETE',
+            fetch('https://sba-com.preview-domain.com/api/deleteServoTiming.php', {
+              method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({ timing_id: id }),
             })
-              .then(response => response.json())
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
               .then(data => {
                 setLoading(false);
                 if (data.success) {
                   Alert.alert('Success', data.message);
-                  setServoTimings(servoTimings.filter(item => item.id !== id));
+                  // Use functional setState to update the list
+                  setServoTimings(prevTimings => prevTimings.filter(item => item.id !== id));
                 } else {
                   Alert.alert('Error', data.message);
                 }

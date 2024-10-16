@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import styles from './style';
 
-const CustomSidebar = ({ toggleModal }) => {
+const CustomSidebar1 = ({ toggleModal }) => {
   const navigation = useNavigation();
 
   return (
@@ -54,4 +54,4 @@ const CustomSidebar = ({ toggleModal }) => {
   );
 };
 
-export default CustomSidebar;
+export default CustomSidebar1;

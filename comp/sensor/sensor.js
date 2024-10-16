@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, Dimensions, TouchableOpacity, Alert } from 'react-native';
-import CustomPopup from './CustomPopup';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import CustomPopup from './CustomPopup'; // Ensure the path is correct
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DropDownPicker from 'react-native-dropdown-picker';
 
@@ -8,18 +8,18 @@ const { width } = Dimensions.get('window');
 
 const SensorRegistration = ({ navigation }) => {
   const [sensorUid, setSensorUid] = useState('');
-  const [sensorType, setSensorType] = useState('');
+  const [sensorType, setSensorType] = useState(null);
   const [message, setMessage] = useState('');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [open, setOpen] = useState(false);
-  const [sensorTypes, setSensorTypes] = useState([
+  const [sensorTypes] = useState([
     { label: 'pH', value: 'pH' },
     { label: 'Temperature', value: 'Temperature' },
     { label: 'Ammonia', value: 'Ammonia' }
   ]);
 
   const registerSensor = () => {
-    if (sensorUid.length === 0 || sensorType.length === 0) {
+    if (sensorUid.length === 0 || sensorType === null) {
       setMessage('Please fill all fields');
       setIsPopupVisible(true);
       return;
@@ -27,7 +27,7 @@ const SensorRegistration = ({ navigation }) => {
 
     const data = { sensorUid, sensorType };
 
-    fetch('http://192.168.101.76/CAPSTONE/api/register-sensor.php', {
+    fetch('https://sba-com.preview-domain.com/api/register-sensor.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -76,7 +76,6 @@ const SensorRegistration = ({ navigation }) => {
                   items={sensorTypes}
                   setOpen={setOpen}
                   setValue={setSensorType}
-                  setItems={setSensorTypes}
                   placeholder="Select Sensor Type"
                   style={styles.dropdown}
                   dropDownStyle={styles.dropdown}
@@ -157,7 +156,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
-    marginBottom: 20, // Added margin bottom
   },
   saveButtonText: {
     color: '#fff',

@@ -20,7 +20,7 @@ const ServoRegistration = ({ navigation }) => {
 
     const data = { servoUid, waterPumpUid };
 
-    fetch('http://192.168.101.76/CAPSTONE/api/register-devices.php', {
+    fetch('https://sba-com.preview-domain.com/api/register-devices.php', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
