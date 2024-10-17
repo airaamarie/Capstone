@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView, Alert } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useNavigation } from '@react-navigation/native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
+import { useNavigation } from '@react-navigation/native';
 import styles from './style';
 import Guideline from '../guide/guideline';
 import Reports from '../Reports/reports';
-import ThermometerIcon from '../../assets/thermometer.png';
-import AnalyticsIcon from '../../assets/ph.png';
-import AmmoniaIcon from '../../assets/ammonia.png';
 import Profile from '../profile/profile';
 import Registration from '../registration/registration';
 import Devices from '../devices/devices';
@@ -17,40 +14,37 @@ import FilterIcon from '../../assets/filter.png';
 const Drawer = createDrawerNavigator();
 
 const DashboardScreen = ({ filter, onFilterChange }) => {
-  const [data, setData] = useState({
-    temperature: 0,
-    ph: 0,
-    ammonia: 0,
-  });
+  const [tanks, setTanks] = useState([]); // Initialize tanks as an empty array
 
-  const filterData = (filter) => {
-    switch (filter) {
-      case 'high':
-        return { temperature: 30, ph: 8.0, ammonia: 1.0 };
-      case 'low':
-        return { temperature: 25, ph: 6.5, ammonia: 0.2 };
-      case 'default':
-        return { temperature: 28, ph: 7.2, ammonia: 0.5 };
-      default:
-        return { temperature: 0, ph: 0, ammonia: 0 };
-    }
+  useEffect(() => {
+    // Fetch tank data from the server
+    fetch('https://sba-com.preview-domain.com/api/fetchTankNames.php')
+      .then(response => response.json())
+      .then(data => {
+        // Check if data.tanks is an array before setting the state
+        if (Array.isArray(data.tanks)) {
+          setTanks(data.tanks);
+        } else {
+          console.error('Expected tanks to be an array but got:', data.tanks);
+        }
+      })
+      .catch(error => console.error('Error fetching tank data:', error));
+  }, []);
+
+  const handleFilterChange = (tankValue) => {
+    onFilterChange(tankValue);
+    // Fetch tank data or perform other actions as needed
   };
 
-  const filteredData = filterData(filter);
+  const showFilterOptions = () => {
+    const options = tanks.map(tank => ({
+      text: tank.label, // Display tank labels
+      onPress: () => handleFilterChange(tank.value), // Use the tank value for filtering
+    }));
 
-  const pieChartData = [
-    { name: 'Temp', population: filteredData.temperature, color: 'rgba(255, 99, 132, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'pH', population: filteredData.ph, color: 'rgba(255, 206, 86, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'Ammonia', population: filteredData.ammonia, color: 'rgba(75, 192, 192, 0.5)', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-  ];
+    options.push({ text: 'Cancel', style: 'cancel' });
 
-  const barChartData = {
-    labels: ['Temperature', 'pH', 'Ammonia'],
-    datasets: [
-      {
-        data: [filteredData.temperature, filteredData.ph, filteredData.ammonia],
-      },
-    ],
+    Alert.alert('Filter Data', 'Choose a tank to filter', options);
   };
 
   return (
@@ -58,47 +52,26 @@ const DashboardScreen = ({ filter, onFilterChange }) => {
       <View style={styles.container}>
         {/* Adjusted Filter Button */}
         <TouchableOpacity
-          onPress={() => {
-            Alert.alert(
-              'Filter Data',
-              'Choose a filter option',
-              [
-                { text: 'Tank 1', onPress: () => onFilterChange('high') },
-                { text: 'Tank 2', onPress: () => onFilterChange('low') },
-                { text: 'Tank 3', onPress: () => onFilterChange('default') },
-                { text: 'Cancel', style: 'cancel' },
-              ]
-            );
-          }}
+          onPress={showFilterOptions} // Call the showFilterOptions function
           style={styles.filterButtonContainer}
         >
           <Image source={FilterIcon} style={styles.filterIcon} />
           <View style={styles.filterTextContainer}>
-            <Text style={styles.filterButtonText}>Filter</Text>
-            <Text style={styles.filterSubText}>Choose a tank</Text>
+            <Text style={styles.filterButtonText}>FILTER</Text>
+            <Text style={styles.chooseTankText}>Choose a tank</Text>
           </View>
         </TouchableOpacity>
 
-        <SensorCard
-          sensorName="Temperature"
-          sensorData={filteredData.temperature}
-          icon={<Image source={ThermometerIcon} style={styles.sensorIcon} />}
-        />
-        <SensorCard
-          sensorName="pH"
-          sensorData={filteredData.ph}
-          icon={<Image source={AnalyticsIcon} style={styles.sensorIcon} />}
-        />
-        <SensorCard
-          sensorName="Ammonia"
-          sensorData={filteredData.ammonia}
-          icon={<Image source={AmmoniaIcon} style={styles.sensorIcon} />}
-        />
+        {/* Sensor Cards */}
+        <SensorCard sensorName="Temperature" sensorData={0} icon={<Image source={require('../../assets/thermometer.png')} style={styles.sensorIcon} />} />
+        <SensorCard sensorName="pH" sensorData={0} icon={<Image source={require('../../assets/ph.png')} style={styles.sensorIcon} />} />
+        <SensorCard sensorName="Ammonia" sensorData={0} icon={<Image source={require('../../assets/ammonia.png')} style={styles.sensorIcon} />} />
 
+        {/* Charts */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
           <PieChart
-            data={pieChartData}
+            data={[]} // Use your actual data here
             width={Dimensions.get('window').width - 78}
             height={180}
             chartConfig={{
@@ -119,7 +92,10 @@ const DashboardScreen = ({ filter, onFilterChange }) => {
           <Text style={styles.chartTitle}>Sensors Data (Bar Graph)</Text>
           <BarChart
             style={{ marginVertical: 8, borderRadius: 16 }}
-            data={barChartData}
+            data={{
+              labels: ['Temperature', 'pH', 'Ammonia'],
+              datasets: [{ data: [0, 0, 0] }], // Use your actual data here
+            }}
             width={Dimensions.get('window').width - 48}
             height={180}
             yAxisLabel=""

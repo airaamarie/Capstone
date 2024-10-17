@@ -20,19 +20,19 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   chartCard: {
-    backgroundColor: '#fff', // Light background for contrast
-    padding: 10, // Adjusted padding
+    backgroundColor: '#fff',
+    padding: 10,
     marginVertical: 10,
     borderRadius: 10,
-    width: width - 32, // Ensure it fits within screen width
+    width: width - 32,
     borderColor: '#004d40',
     borderWidth: 1,
-    alignItems: 'center', // Center content inside the card
-    maxHeight: height * 0.35, // Increased max height for better fit
-    overflow: 'hidden', // Hide overflow if content exceeds bounds
+    alignItems: 'center',
+    maxHeight: height * 0.35,
+    overflow: 'hidden',
   },
   chartTitle: {
-    fontSize: 16, // Adjusted font size for better fit
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
     textAlign: 'center',
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   chartContainer: {
     flex: 1,
     width: '100%',
-    justifyContent: 'center', // Center the graph within the card
+    justifyContent: 'center',
   },
   screen: {
     flex: 1,
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#004d40', // Match the border color for consistency
-    width: width - 32, // Ensure it fits within screen width
+    borderColor: '#004d40',
+    width: width - 32,
   },
   sensorIcon: {
     width: 60,
@@ -193,17 +193,25 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 15,
     elevation: 3, // Shadow effect for better visibility
-    width: '90%', // Ensure the button extends horizontally
+    width: '100%', // Ensure the button extends horizontally
     alignSelf: 'center', // Center the button itself
   },
   filterButtonText: {
     color: '#fff', // White text for visibility
     fontWeight: 'bold',
     fontSize: 16,
+    textAlign: 'center', // Center the text
+    flex: 1, // Allows the text to take available space in the row
   },
   filterIcon: {
-    width: 20,
+    width: 45,
     height: 20,
+    marginRight: 10, // Spacing between the icon and text
+  },
+  chooseTankText: {
+    color: '#fff', // White text for visibility
+    fontWeight: 'normal', // Adjust as needed
+    fontSize: 14, // Adjust the size as needed
   },
 });
 
