@@ -1,42 +1,88 @@
-// WaterPump.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // Importing Picker from the correct package
+import axios from 'axios';
 
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+const { width, height } = Dimensions.get('window');
 
-const WaterPump = () => {
+const WaterPump = ({ navigation }) => {
   const [isOn, setIsOn] = useState(false);
-  const navigation = useNavigation();
+  const [pumpUid, setPumpUid] = useState('');
+  const [pumps, setPumps] = useState([]);
+
+  useEffect(() => {
+    // Fetch the list of water pumps from the API
+    axios.get('https://sba-com.preview-domain.com/api/water_pumps.php')
+      .then(response => {
+        if (response.data.success) {
+          setPumps(response.data.data);
+          if (response.data.data.length > 0) {
+            setPumpUid(response.data.data[0].pump_uid);
+            setIsOn(response.data.data[0].status === 'on');
+          }
+        } else {
+          Alert.alert('Error', 'Failed to fetch water pumps.');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching water pumps:', error);
+        Alert.alert('Error', 'Failed to fetch water pumps.');
+      });
+  }, []);
 
   const handleToggle = () => {
-    setIsOn(prevState => !prevState);
-    // Add your logic to control the water pump here
-    if (!isOn) {
-      console.log('Water Pump is now ON');
-    } else {
-      console.log('Water Pump is now OFF');
-    }
+    const newStatus = !isOn;
+    // Update the water pump status in the API
+    axios.post('https://sba-com.preview-domain.com/api/update_water_pump_status.php', {
+      pump_uid: pumpUid,
+      status: newStatus ? 'on' : 'off'
+    })
+    .then(response => {
+      if (response.data.success) {
+        setIsOn(newStatus);
+        Alert.alert('Success', `Water Pump is now ${newStatus ? 'ON' : 'OFF'}`);
+      } else {
+        Alert.alert('Error', 'Failed to update the water pump status.');
+      }
+    })
+    .catch(error => {
+      console.error('Error controlling water pump:', error);
+      Alert.alert('Error', 'Failed to update the water pump status.');
+    });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-left" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-      <Image source={require('../../assets/logo.jpg')} style={styles.logo} />
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>Water Pump Control</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.button, isOn ? styles.buttonOn : styles.buttonOff]} 
-          onPress={handleToggle}
-        >
-          <Text style={styles.buttonText}>{isOn ? 'Turn OFF' : 'Turn ON'}</Text>
-        </TouchableOpacity>
-        <Text style={styles.status}>{`Water Pump is ${isOn ? 'ON' : 'OFF'}`}</Text>
-      </View>
+      <TouchableOpacity 
+        style={[styles.button, isOn ? styles.buttonOn : styles.buttonOff]} 
+        onPress={handleToggle}
+      >
+        <Text style={styles.buttonText}>{isOn ? 'Turn OFF' : 'Turn ON'}</Text>
+      </TouchableOpacity>
+      <Text style={styles.status}>{`Water Pump is ${isOn ? 'ON' : 'OFF'}`}</Text>
+
+      {/* Picker for PUMP_UID */}
+      <Picker
+        selectedValue={pumpUid}
+        style={styles.picker}
+        onValueChange={(itemValue) => {
+          const selectedPump = pumps.find(pump => pump.pump_uid === itemValue);
+          if (selectedPump) {
+            setPumpUid(itemValue);
+            setIsOn(selectedPump.status === 'on');
+          }
+        }}
+      >
+        {pumps.map(pump => (
+          <Picker.Item key={pump.pump_uid} label={`Pump ${pump.pump_uid}`} value={pump.pump_uid} />
+        ))}
+      </Picker>
     </View>
   );
 };
@@ -44,50 +90,36 @@ const WaterPump = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#B0E0E6',
-    padding: 20,
-  },
-  headerContainer: {
-    flexDirection: 'row',
+    padding: 16,
     alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: '#B0E0E6',
   },
   backButton: {
-    backgroundColor: '#0277bd',
-    padding: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: '#004d40',
     borderRadius: 5,
-    marginRight: 10,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 16,
-    alignSelf: 'center',
-    borderRadius: 10, 
-    borderWidth: 2,
-    borderColor: '#004d40',
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.3,
-    shadowRadius: 4, 
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#004d40',
-    textAlign: 'center',
     marginBottom: 20,
-  },
-  buttonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    textAlign: 'center',
   },
   button: {
     width: '80%',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
+    alignSelf: 'center',
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
@@ -110,6 +142,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#004d40',
     marginTop: 20,
+    textAlign: 'center',
+  },
+  picker: {
+    height: 50,
+    width: '80%',
+    marginTop: 20,
+    backgroundColor: '#fff',
+    borderColor: '#004d40',
+    borderWidth: 1,
+    borderRadius: 5,
   },
 });
 

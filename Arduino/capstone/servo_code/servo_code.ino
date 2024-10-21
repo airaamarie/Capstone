@@ -1,18 +1,21 @@
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include <NTPClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include <Servo.h>
 #include <ESP8266HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 // Wi-Fi credentials
-const char* ssid = "CREENCIA_2.4"; // Replace with your WiFi SSID
-const char* password = "$PAYAMANFAM_2023$"; // Replace with your WiFi Password
+const char* ssid = "CREENCIA_2.4";  
+const char* password = "$PAYAMANFAM_2023$";  
 
-// API URL for fetching servo timing data
-const char* apiUrl = "http://192.168.1.8/Capstone/iot_api/servo_timing.php?servo_uid=S1"; // Replace with actual servo UID
+// API URLs
+const char* servoApiUrl = "https://sba-com.preview-domain.com/iot_api/servo_timing.php?servo_uid=S1";  
+const char* sensorUidApiUrl = "https://sba-com.preview-domain.com/iot_api/fetchSensorUid.php"; // New API for fetching temperature sensor UID
+const char* dataApiUrl = "https://sba-com.preview-domain.com/iot_api/send_sensor_data.php";  // New API for sending data
 
 // Create a UDP instance
 WiFiUDP ntpUDP;
@@ -22,120 +25,175 @@ NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800, 10000);
 
 // Create a Servo object
 Servo myServo;
-int servoPin = D4; // Use D4 (GPIO2) on the WeMos D1
+const int servoPin = D4;  // Use D4 (GPIO2) on the WeMos D1
 
-// OneWire and DallasTemperature setup for DS18B20
-#define ONE_WIRE_BUS D2 // Pin for DS18B20
-OneWire oneWire(ONE_WIRE_BUS);
+// MQ-137 sensor pin
+const int mq137Pin = A0;  // Analog pin for the MQ-137 sensor
+
+// DS18B20 Sensor Setup
+const int oneWirePin = D2; // Use D2 (GPIO4) for DS18B20
+OneWire oneWire(oneWirePin);
 DallasTemperature sensors(&oneWire);
 
 // Variables
-bool servoActivated = false; // Flag to track if the servo has been activated
-bool apiSet = false; // Flag to indicate if API time has been set
-String times[10]; // Array to store multiple times
-int numTimes = 0; // Number of times fetched from the API
+String activeTimes[10];  
+int activeTimeCount = 0;  
+bool servoActivated = false;  
+String tankId = "";  
+int mq137Value = 0;  // Variable to store the ammonia value
+float temperatureValue = 0.0; // Variable to store the temperature
 
-// MQ-137 setup
-const int mq137Pin = A0; // Pin for MQ-137
-float ammoniaLevel = 0; // Variable to store the ammonia level
+// Create a secure WiFiClient instance
+WiFiClientSecure client;
 
-// Create a WiFiClient instance
-WiFiClient client;
+// Timing variables
+const long apiInterval = 10000;  
+const long displayInterval = 1000;  
+unsigned long lastApiCall = 0;
+unsigned long lastDisplay = 0; 
 
 void setup() {
   Serial.begin(115200);
-  
-  // Attempt to connect to Wi-Fi
-  Serial.print("Connecting to Wi-Fi");
   WiFi.begin(ssid, password);
-  int attempts = 0; // Track connection attempts
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print(".");
-    attempts++;
   }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(" Connected!");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP()); // Print the local IP address
-    timeClient.begin(); // Initialize the NTP client
-  } else {
-    Serial.println(" Failed to connect to Wi-Fi! Check credentials.");
-  }
-
-  // Attach the servo to the pin
+  Serial.println(" Connected!");
+  
+  timeClient.begin();
   myServo.attach(servoPin);
-
-  // Start the DS18B20 sensor
-  sensors.begin();
+  sensors.begin(); // Initialize the DS18B20 sensor
 }
 
 void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    // Fetch the latest timing data from the server
-    HTTPClient http;
-    http.begin(client, apiUrl);
-    int httpCode = http.GET();
+  unsigned long currentMillis = millis();
 
-    if (httpCode > 0) { // Check for successful HTTP response
-      String payload = http.getString();
-      DynamicJsonDocument doc(1024);
-      deserializeJson(doc, payload);
+  if (currentMillis - lastApiCall >= apiInterval) {
+    lastApiCall = currentMillis;  
+    activeTimeCount = 0;  
 
-      if (!apiSet) {
-        serializeJson(doc, Serial); // Print full response for debugging
-      }
-
-      numTimes = doc["servoTimings"].size();
-      for (int i = 0; i < numTimes; i++) {
-        times[i] = doc["servoTimings"][i]["time"].as<String>();
-        Serial.println("Set Time from API: " + times[i]);
-      }
-
-      apiSet = true; // Set the flag to indicate that the API time has been set
-    } else {
-      Serial.println("Error fetching data from API.");
+    if (WiFi.status() == WL_CONNECTED) {
+      fetchServoTimingData();
+      fetchTankId();
     }
-
-    http.end(); // Close the HTTP connection
-
-    // Update time from NTP server
-    timeClient.update();
-    String currentTime = timeClient.getFormattedTime();
-    Serial.print("Current Philippine Time: ");
-    Serial.println(currentTime);
-
-    // Check if the set time matches the current time
-    for (int i = 0; i < numTimes; i++) {
-      if (currentTime == times[i] && !servoActivated) {
-        // Move the servo to 180 degrees, then return after 5 seconds
-        myServo.write(360); // Set to 180 for one direction (e.g., clockwise)
-        delay(5000); // Keep rotating for 5 seconds
-        Serial.println("Servo activated! Position set to last angle.");
-        servoActivated = true; // Set the flag to indicate that the servo has been activated
-      } else if (currentTime != times[i]) {
-        servoActivated = false; // Reset the flag if the time does not match
-      }
-    }
-
-    // Read temperature from DS18B20
-    sensors.requestTemperatures();
-    float temperature = sensors.getTempCByIndex(0);
-    Serial.print("Temperature: ");
-    Serial.print(temperature);
-    Serial.println(" °C");
-
-    // Read ammonia level from MQ-137
-    int mq137Value = analogRead(mq137Pin);
-    // Convert the analog value to a meaningful ammonia level
-    ammoniaLevel = mq137Value * (5.0 / 1023.0); // Assuming 5V reference
-    Serial.print("Ammonia Level: ");
-    Serial.println(ammoniaLevel);
-
-  } else {
-    Serial.println("Wi-Fi not connected. Servo action skipped.");
   }
 
-  delay(1000); // Delay for 1 second before the next loop iteration
+  timeClient.update();
+  String currentTime = timeClient.getFormattedTime();
+  bool matchFound = false; 
+
+  for (int i = 0; i < activeTimeCount; i++) {
+    if (activeTimes[i] == currentTime) {
+      matchFound = true; 
+      if (!servoActivated) {
+        myServo.write(180);  
+        delay(5000);         
+        myServo.write(0);    
+        servoActivated = true;  
+      }
+      break;  
+    }
+  }
+
+  if (!matchFound) {
+    servoActivated = false;
+  }
+
+  if (currentMillis - lastDisplay >= displayInterval) {
+    lastDisplay = currentMillis;  
+    mq137Value = analogRead(mq137Pin);  
+    Serial.print("Ammonia Value: ");
+    Serial.println(mq137Value);  
+    Serial.print("Tank ID: "); 
+    Serial.println(tankId);
+    
+    // Read temperature from DS18B20
+    sensors.requestTemperatures(); // Request temperature readings
+    temperatureValue = sensors.getTempCByIndex(0); // Get temperature in Celsius
+    Serial.print("Water Temperature: ");
+    Serial.println(temperatureValue); // Print temperature
+
+    // Send both ammonia and temperature sensor data to the database
+    sendSensorData(tankId, "A1", mq137Value); // Sending ammonia data with UID A1
+    sendSensorData(tankId, "T1", temperatureValue); // Sending temperature data with UID T1
+  }
+}
+
+void fetchServoTimingData() {
+  HTTPClient http;
+  client.setInsecure();  
+  http.begin(client, servoApiUrl);
+  int httpCode = http.GET();
+
+  if (httpCode > 0) {
+    String payload = http.getString();
+    DynamicJsonDocument doc(2048);
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      for (JsonObject timing : doc["servoTimings"].as<JsonArray>()) {
+        String uid = timing["servo_uid"];
+        String status = timing["status"];
+        String time = timing["time"];
+        if (uid == "S1" && status == "Active" && activeTimeCount < 10) {
+          activeTimes[activeTimeCount] = time;
+          activeTimeCount++;  
+        }
+      }
+    }
+  }
+  http.end();
+}
+
+void fetchTankId() {
+    // Create the tank API URL dynamically using both sensor UIDs
+    String tankApiUrl = "https://sba-com.preview-domain.com/iot_api/fetchTankId.php?sensor_uid=A1&temperature_sensor_uid=T1"; 
+
+    HTTPClient http;
+    client.setInsecure();  
+    http.begin(client, tankApiUrl);
+    int httpCode = http.GET();
+
+    if (httpCode > 0) {
+        String payload = http.getString();
+        DynamicJsonDocument doc(1024);
+        DeserializationError error = deserializeJson(doc, payload);
+
+        if (!error) {
+            if (doc.containsKey("tank_id")) {
+                tankId = doc["tank_id"].as<String>();
+            } else {
+                Serial.println("Error: No tank found.");
+            }
+        }
+    }
+    http.end();
+}
+
+// Function to send sensor data to the database
+void sendSensorData(String tankId, String sensorUid, float dataValue) {
+  HTTPClient http;
+  client.setInsecure();  
+  http.begin(client, dataApiUrl);
+
+  // Prepare data to send
+  unsigned long epochTime = timeClient.getEpochTime();
+  String postData = "tank_id=" + tankId + "&sensor_uid=" + sensorUid + "&data_value=" + String(dataValue) + "&timestamp=" + String(epochTime);
+
+  // Specify content type
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  // Send POST request
+  int httpResponseCode = http.POST(postData);
+
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println("Data sent successfully: " + response);
+  } else {
+    Serial.print("Error sending data: ");
+    Serial.println(httpResponseCode);
+  }
+
+  http.end();
 }

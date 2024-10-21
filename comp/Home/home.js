@@ -14,32 +14,57 @@ import FilterIcon from '../../assets/filter.png';
 const Drawer = createDrawerNavigator();
 
 const DashboardScreen = ({ filter, onFilterChange }) => {
-  const [tanks, setTanks] = useState([]); // Initialize tanks as an empty array
+  const [tanks, setTanks] = useState([]);
+  const [sensorData, setSensorData] = useState({ temperature: 0, pH: 0, ammonia: 0 });
 
   useEffect(() => {
     // Fetch tank data from the server
     fetch('https://sba-com.preview-domain.com/api/fetchTankNames.php')
       .then(response => response.json())
       .then(data => {
-        // Check if data.tanks is an array before setting the state
         if (Array.isArray(data.tanks)) {
           setTanks(data.tanks);
-        } else {
-          console.error('Expected tanks to be an array but got:', data.tanks);
         }
       })
-      .catch(error => console.error('Error fetching tank data:', error));
+      .catch(() => {}); // Silently handle errors
   }, []);
+
+  useEffect(() => {
+    // Fetch sensor data based on the selected tank
+    if (filter) {
+      fetch(`https://sba-com.preview-domain.com/api/fetchSensorData.php?tank_id=${filter}`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.error) {
+            const temperatureData = data.find(sensor => sensor.sensor_uid === 'T1');
+            const ammoniaData = data.find(sensor => sensor.sensor_uid === 'A1');
+            setSensorData({
+              temperature: temperatureData ? temperatureData.data_value : 0,
+              pH: 0,  // Set pH to 0 as specified
+              ammonia: ammoniaData ? ammoniaData.data_value : 0,
+            });
+          } else {
+            // Set sensor data to 0 if there's an error or no tank is selected
+            setSensorData({ temperature: 0, pH: 0, ammonia: 0 });
+          }
+        })
+        .catch(() => {
+          setSensorData({ temperature: 0, pH: 0, ammonia: 0 }); // Reset sensor data on error
+        });
+    } else {
+      // Reset sensor data to 0 when no filter is applied
+      setSensorData({ temperature: 0, pH: 0, ammonia: 0 });
+    }
+  }, [filter]);
 
   const handleFilterChange = (tankValue) => {
     onFilterChange(tankValue);
-    // Fetch tank data or perform other actions as needed
   };
 
   const showFilterOptions = () => {
     const options = tanks.map(tank => ({
-      text: tank.label, // Display tank labels
-      onPress: () => handleFilterChange(tank.value), // Use the tank value for filtering
+      text: tank.label,
+      onPress: () => handleFilterChange(tank.value),
     }));
 
     options.push({ text: 'Cancel', style: 'cancel' });
@@ -50,9 +75,8 @@ const DashboardScreen = ({ filter, onFilterChange }) => {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {/* Adjusted Filter Button */}
         <TouchableOpacity
-          onPress={showFilterOptions} // Call the showFilterOptions function
+          onPress={showFilterOptions}
           style={styles.filterButtonContainer}
         >
           <Image source={FilterIcon} style={styles.filterIcon} />
@@ -63,15 +87,19 @@ const DashboardScreen = ({ filter, onFilterChange }) => {
         </TouchableOpacity>
 
         {/* Sensor Cards */}
-        <SensorCard sensorName="Temperature" sensorData={0} icon={<Image source={require('../../assets/thermometer.png')} style={styles.sensorIcon} />} />
-        <SensorCard sensorName="pH" sensorData={0} icon={<Image source={require('../../assets/ph.png')} style={styles.sensorIcon} />} />
-        <SensorCard sensorName="Ammonia" sensorData={0} icon={<Image source={require('../../assets/ammonia.png')} style={styles.sensorIcon} />} />
+        <SensorCard sensorName="Temperature" sensorData={sensorData.temperature} icon={<Image source={require('../../assets/thermometer.png')} style={styles.sensorIcon} />} />
+        <SensorCard sensorName="pH" sensorData={sensorData.pH} icon={<Image source={require('../../assets/ph.png')} style={styles.sensorIcon} />} />
+        <SensorCard sensorName="Ammonia" sensorData={sensorData.ammonia} icon={<Image source={require('../../assets/ammonia.png')} style={styles.sensorIcon} />} />
 
         {/* Charts */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>Sensors Data (Pie Chart)</Text>
           <PieChart
-            data={[]} // Use your actual data here
+            data={[
+              { name: 'Temperature', population: sensorData.temperature, color: '#FF6384', legendFontColor: '#fff', legendFontSize: 15 },
+              { name: 'pH', population: sensorData.pH, color: '#36A2EB', legendFontColor: '#fff', legendFontSize: 15 },
+              { name: 'Ammonia', population: sensorData.ammonia, color: '#FFCE56', legendFontColor: '#fff', legendFontSize: 15 },
+            ]}
             width={Dimensions.get('window').width - 78}
             height={180}
             chartConfig={{
@@ -94,7 +122,7 @@ const DashboardScreen = ({ filter, onFilterChange }) => {
             style={{ marginVertical: 8, borderRadius: 16 }}
             data={{
               labels: ['Temperature', 'pH', 'Ammonia'],
-              datasets: [{ data: [0, 0, 0] }], // Use your actual data here
+              datasets: [{ data: [sensorData.temperature, sensorData.pH, sensorData.ammonia] }],
             }}
             width={Dimensions.get('window').width - 48}
             height={180}
@@ -174,31 +202,30 @@ const CustomSidebar = () => {
 };
 
 export default function HomeScreen() {
-  const [filter, setFilter] = useState('');
+  const [selectedTank, setSelectedTank] = useState(null);
 
   return (
     <Drawer.Navigator
-      initialRouteName="Dashboard"
       drawerContent={() => <CustomSidebar />}
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#4C9A2A',
-          height: 80,
+          backgroundColor: '#B0E0E6', // Set your custom header color here
         },
-        headerTintColor: '#fff',
+        headerTintColor: '#000', // Color of header text
         headerTitleStyle: {
-          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: 20,
         },
       }}
     >
       <Drawer.Screen name="Dashboard">
-        {() => <DashboardScreen filter={filter} onFilterChange={setFilter} />}
+        {() => <DashboardScreen filter={selectedTank} onFilterChange={setSelectedTank} />}
       </Drawer.Screen>
       <Drawer.Screen name="Reports" component={Reports} />
-      <Drawer.Screen name="Devices" component={Devices} />
       <Drawer.Screen name="Profile" component={Profile} />
       <Drawer.Screen name="GuideLine" component={Guideline} />
       <Drawer.Screen name="Registration" component={Registration} />
+      <Drawer.Screen name="Devices" component={Devices} />
     </Drawer.Navigator>
   );
 }
